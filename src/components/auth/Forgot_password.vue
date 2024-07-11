@@ -28,22 +28,29 @@
     </div>
   </template>
   
-  <script>
-  export default {
-    name: 'ForgotPassword',
-    data() {
-      return {
-        email: '',
-        showCheckEmailMessage: false
-      };
-    },
-    methods: {
-      handleSubmit() {
-        this.showCheckEmailMessage = true;
-      }
-    }
-  }
-  </script>
+<script>
+import { ref } from 'vue';
+
+export default {
+  name: 'ForgotPassword',
+  setup() {
+    const email = ref('');
+    const showCheckEmailMessage = ref(false);
+
+    const handleSubmit = () => {
+      console.log("Forgot password form submitted with", email.value);
+      showCheckEmailMessage.value = true;
+    };
+
+    return {
+      email,
+      showCheckEmailMessage,
+      handleSubmit,
+    };
+  },
+};
+</script>
+
   
   <style scoped>
   * {

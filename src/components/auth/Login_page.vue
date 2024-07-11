@@ -29,12 +29,25 @@
   </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
   name: 'LoginPage',
-  props: {
-    msg: String
-  }
-}
+  setup() {
+    const email = ref('');
+    const password = ref('');
+
+    const handleSubmit = () => {
+      console.log("Form submitted with", email.value, password.value);
+    };
+
+    return {
+      email,
+      password,
+      handleSubmit,
+    };
+  },
+};
 </script>
 
 <style scoped>

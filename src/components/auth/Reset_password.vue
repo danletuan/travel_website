@@ -28,12 +28,23 @@
   </template>
 
 <script>
+import { ref } from 'vue';
+
 export default {
   name: 'ResetPassword',
-  props: {
-    msg: String
-  }
-}
+  setup() {
+    const newPassword = ref('');
+
+    const handleSubmit = () => {
+      console.log("Reset password form submitted with", newPassword.value);
+    };
+
+    return {
+      newPassword,
+      handleSubmit,
+    };
+  },
+};
 </script>
 
 <style scoped>
