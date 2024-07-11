@@ -3,19 +3,21 @@
       <div class="row w-75 shadow-lg rounded overflow-hidden">
         <div class="col-md-6 bg-white d-flex justify-content-center align-items-center p-5">
           <div class="w-100">
-            <h1 v-if="!showCheckEmailMessage">Forgot password</h1>
-            <p v-if="!showCheckEmailMessage">Please enter your email to reset the password</p>
-            <div v-if="showCheckEmailMessage">
+            <div v-if="!showCheckEmailMessage">
+              <h1>Forgot password</h1>
+              <p>Please enter your email to reset the password</p>
+              <form @submit.prevent="handleSubmit">
+                <div class="form-group">
+                  <label for="email">Email address</label>
+                  <input type="email" class="form-control" id="email" name="email" v-model="email" placeholder="Enter your email">
+                </div>
+                <button type="submit" class="btn btn-success btn-block">Send</button>
+              </form>
+            </div>
+            <div v-else>
               <h1>Check your email</h1>
               <p>We sent you an email with instructions for resetting your password</p>
             </div>
-            <form @submit.prevent="handleSubmit" v-if="!showCheckEmailMessage">
-              <div class="form-group">
-                <label for="email">Email address</label>
-                <input type="email" class="form-control" id="email" name="email" v-model="email" placeholder="Enter your email">
-              </div>
-              <button type="submit" class="btn btn-success btn-block">Send</button>
-            </form>
           </div>
         </div>
         <div class="col-md-6 p-0">
@@ -144,17 +146,7 @@
   button:hover {
     background-color: #45a049;
   }
-  
-  .forgot-password {
-    align-self: flex-end;
-    color: #0C2A92;
-    text-decoration: none;
-    margin-bottom: 20px;
-  }
-  
-  .forgot-password:hover {
-    text-decoration: underline;
-  }
+
   
   .image {
     width: 100%;
