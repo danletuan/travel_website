@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from '../components/auth/Login_page.vue';
-import ForgotPassword from '../components/auth/Forgot_password.vue';
-import ResetPassword from '../components/auth/Reset_password.vue';
+import LoginPage from '../components/auth/LoginPage.vue';
+import ForgotPassword from '../components/auth/ForgotPassword.vue';
+import ResetPassword from '../components/auth/ResetPassword.vue';
 
 const routes = [
     {
