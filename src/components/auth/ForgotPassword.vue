@@ -4,10 +4,10 @@
       <div class="col-md-6 bg-white d-flex justify-content-center align-items-center p-5">
         <div class="w-100">
           <div v-if="!showCheckEmailMessage">
-            <h1>Forgot password</h1>
-            <p>Please enter your email to reset the password</p>
+            <h1 class="display-4 mb-3">Forgot password</h1>
+            <p class="text-muted mb-4">Please enter your email to reset the password</p>
             <form @submit.prevent="handleSubmit">
-              <div class="form-group">
+              <div class="form-group mb-3">
                 <label for="email">Email address</label>
                 <input 
                   type="email" 
@@ -17,18 +17,16 @@
                   v-model="state.email" 
                   placeholder="Enter your email"
                 >
-                <div v-if="v$.email.$invalid" class="text-danger">
-                  <div v-if="!v$.email.required">Email is required.</div>
-                  <div v-if="!v$.email.email">Email is not valid.</div>
-                  <div v-if="state.email.length > 255">Email must be less than 255 characters.</div>
+                <div v-if="emailErrors.length" class="text-danger mt-1">
+                  <div v-for="error in emailErrors" :key="error">{{ error }}</div>
                 </div>
               </div>
-              <button type="submit" class="btn btn-success btn-block">Send</button>
+              <button type="submit" class="btn btn-success w-100">Send</button>
             </form>
           </div>
           <div v-else>
-            <h1>Check your email</h1>
-            <p>We sent you an email with instructions for resetting your password</p>
+            <h1 class="display-4 mb-3">Check your email</h1>
+            <p class="text-muted mb-4">We sent you an email with instructions for resetting your password</p>
           </div>
         </div>
       </div>
@@ -41,7 +39,7 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import useVuelidate from '@vuelidate/core';
 import { required, email } from '@vuelidate/validators';
 
@@ -71,11 +69,20 @@ export default {
       }
     };
 
+    const emailErrors = computed(() => {
+      const errors = [];
+      if (!v$.value.email.required) errors.push('Email is required.');
+      if (!v$.value.email.email) errors.push('Email is not valid.');
+      if (state.email.length > 255) errors.push('Email must be less than 255 characters.');
+      return errors;
+    });
+
     return {
       state,
       v$,
       showCheckEmailMessage,
       handleSubmit,
+      emailErrors
     };
   }
 };
@@ -97,34 +104,9 @@ body {
   background-color: #f7f7f7;
 }
 
-.container {
-  display: flex;
-  width: 80%;
-  max-width: 1000px;
-  background-color: white;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.left, .right {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-}
-
-.left {
-  background-color: white;
-}
-
-.right {
-  background-color: #f7f7f7;
-}
-
-.left-content {
-  width: 100%;
+.text-danger {
+  color: red;
+  font-size: 0.875em;
 }
 
 h1 {
@@ -137,18 +119,12 @@ p {
   color: #666;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
 label {
   margin-bottom: 5px;
   font-weight: bold;
 }
 
-input[type="email"], input[type="password"] {
+input[type="email"] {
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
@@ -169,40 +145,10 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1em;
-}
-
-.eye-icon {
-  position: absolute;
-  right: 10px;
-  top: 55%;
-  transform: translateY(-50%);
-  cursor: pointer;
+  width: 100%; 
 }
 
 button:hover {
   background-color: #45a049;
-}
-
-.forgot-password {
-  align-self: flex-end;
-  color: #0C2A92;
-  text-decoration: none;
-  margin-bottom: 20px;
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
-}
-
-.image {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.text-danger {
-  color: red;
-  font-size: 0.875em;
 }
 </style>

@@ -3,10 +3,10 @@
     <div class="row w-75 shadow-lg rounded overflow-hidden">
       <div class="col-md-6 bg-white d-flex justify-content-center align-items-center p-5">
         <div class="w-100">
-          <h1>Welcome back!</h1>
-          <p>Enter your Credentials to access your account</p>
+          <h1 class="display-4 mb-3">Welcome back!</h1>
+          <p class="text-muted mb-4">Enter your Credentials to access your account</p>
           <form @submit.prevent="handleSubmit">
-            <div class="form-group">
+            <div class="form-group mb-3">
               <label for="email">Email address</label>
               <input 
                 type="email" 
@@ -16,13 +16,11 @@
                 v-model="state.email" 
                 placeholder="Enter your email"
               >
-              <div v-if="v$.email.$invalid" class="text-danger">
-                <div v-if="!v$.email.required">Email is required.</div>
-                <div v-if="!v$.email.email">Email is not valid.</div>
-                <div v-if="state.email.length > 255">Email must be less than 255 characters.</div>
+              <div v-if="emailErrors.length" class="text-danger mt-1">
+                <div v-for="error in emailErrors" :key="error">{{ error }}</div>
               </div>
             </div>
-            <div class="form-group position-relative">
+            <div class="form-group mb-3 position-relative">
               <label for="password">Password</label>
               <input 
                 type="password" 
@@ -33,13 +31,12 @@
                 placeholder="Enter your password"
               >
               <img src="../../assets/auth/eye.png" class="eye-icon">
-              <div v-if="v$.password.$invalid" class="text-danger">
-                <div v-if="!v$.password.required">Password is required.</div>
-                <div v-if="state.password.length > 255">Password must be less than 255 characters.</div>
+              <div v-if="passwordErrors.length" class="text-danger mt-1">
+                <div v-for="error in passwordErrors" :key="error">{{ error }}</div>
               </div>
             </div>
-            <a href="Forgot_password.html" class="forgot-password d-block mb-3">Forgot password</a>
-            <button type="submit" class="btn btn-success btn-block">Login</button>
+            <router-link to="/forgot-password" class="forgot-password d-block mb-3 text-end">Forgot password</router-link>
+            <button type="submit" class="btn btn-success btn-block w-100">Login</button>
           </form>
         </div>
       </div>
@@ -52,7 +49,7 @@
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import useVuelidate from '@vuelidate/core';
 import { required, email } from '@vuelidate/validators';
 
@@ -78,10 +75,27 @@ export default {
       }
     };
 
+    const emailErrors = computed(() => {
+      const errors = [];
+      if (!v$.value.email.required) errors.push('Email is required.');
+      if (!v$.value.email.email) errors.push('Email is not valid.');
+      if (state.email.length > 255) errors.push('Email must be less than 255 characters.');
+      return errors;
+    });
+
+    const passwordErrors = computed(() => {
+      const errors = [];
+      if (!v$.value.password.required) errors.push('Password is required.');
+      if (state.password.length > 255) errors.push('Password must be less than 255 characters.');
+      return errors;
+    });
+
     return {
       state,
       v$,
-      handleSubmit
+      handleSubmit,
+      emailErrors,
+      passwordErrors
     };
   }
 };
@@ -103,34 +117,19 @@ body {
   background-color: #f7f7f7;
 }
 
-.container {
-  display: flex;
-  width: 80%;
-  max-width: 1000px;
-  background-color: white;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 70%; 
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
 }
 
-.left, .right {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-}
-
-.left {
-  background-color: white;
-}
-
-.right {
-  background-color: #f7f7f7;
-}
-
-.left-content {
-  width: 100%;
+.text-danger {
+  color: red;
+  font-size: 0.875em;
 }
 
 h1 {
@@ -141,12 +140,6 @@ h1 {
 p {
   margin-bottom: 30px;
   color: #666;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
 }
 
 label {
@@ -175,14 +168,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1em;
-}
-
-.eye-icon {
-  position: absolute;
-  right: 10px;
-  top: 55%;
-  transform: translateY(-50%);
-  cursor: pointer;
+  width: 100%; 
 }
 
 button:hover {
@@ -194,21 +180,10 @@ button:hover {
   color: #0C2A92;
   text-decoration: none;
   margin-bottom: 20px;
+  text-align: end; 
 }
 
 .forgot-password:hover {
   text-decoration: underline;
-}
-
-.image {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.text-danger {
-  color: red;
-  font-size: 0.875em;
 }
 </style>

@@ -16,9 +16,8 @@
                 placeholder="Enter your new password"
               >
               <img src="../../assets/auth/eye.png" class="eye-icon">
-              <div v-if="v$.newPassword.$invalid" class="text-danger">
-                <div v-if="!v$.newPassword.required">Password is required.</div>
-                <div v-if="state.newPassword.length > 255">Password must be less than 255 characters.</div>
+              <div v-if="passwordErrors.length" class="text-danger">
+                <div v-for="error in passwordErrors" :key="error">{{ error }}</div>
               </div>
             </div>
             <div class="form-group position-relative">
@@ -32,10 +31,8 @@
                 placeholder="Re-enter password"
               >
               <img src="../../assets/auth/eye.png" class="eye-icon">
-              <div v-if="v$.confirmPassword.$invalid" class="text-danger">
-                <div v-if="!v$.confirmPassword.required">Confirm password is required.</div>
-                <div v-if="state.confirmPassword.length > 255">Password must be less than 255 characters.</div>
-                <div v-if="!v$.confirmPassword.sameAsNewPassword">Passwords must match.</div>
+              <div v-if="confirmPasswordErrors.length" class="text-danger">
+                <div v-for="error in confirmPasswordErrors" :key="error">{{ error }}</div>
               </div>
             </div>
             <button type="submit" class="btn btn-success btn-block">Update Password</button>
@@ -51,7 +48,7 @@
 </template>
 
 <script>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import useVuelidate from '@vuelidate/core';
 import { required, sameAs } from '@vuelidate/validators';
 
@@ -85,10 +82,27 @@ export default {
       }
     };
 
+    const passwordErrors = computed(() => {
+      const errors = [];
+      if (!v$.value.newPassword.required) errors.push('Password is required.');
+      if (state.newPassword.length > 255) errors.push('Password must be less than 255 characters.');
+      return errors;
+    });
+
+    const confirmPasswordErrors = computed(() => {
+      const errors = [];
+      if (!v$.value.confirmPassword.required) errors.push('Confirm password is required.');
+      if (state.confirmPassword.length > 255) errors.push('Password must be less than 255 characters.');
+      if (!v$.value.confirmPassword.sameAsNewPassword) errors.push('Passwords must match.');
+      return errors;
+    });
+
     return {
       state,
       v$,
       handleSubmit,
+      passwordErrors,
+      confirmPasswordErrors,
     };
   },
 };
@@ -110,34 +124,19 @@ body {
   background-color: #f7f7f7;
 }
 
-.container {
-  display: flex;
-  width: 80%;
-  max-width: 1000px;
-  background-color: white;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 70%; 
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
 }
 
-.left, .right {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-}
-
-.left {
-  background-color: white;
-}
-
-.right {
-  background-color: #f7f7f7;
-}
-
-.left-content {
-  width: 100%;
+.text-danger {
+  color: red;
+  font-size: 0.875em;
 }
 
 h1 {
@@ -150,18 +149,12 @@ p {
   color: #666;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
 label {
   margin-bottom: 5px;
   font-weight: bold;
 }
 
-input[type="email"], input[type="password"] {
+input[type="password"] {
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
@@ -182,40 +175,10 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1em;
-}
-
-.eye-icon {
-  position: absolute;
-  right: 10px;
-  top: 55%;
-  transform: translateY(-50%);
-  cursor: pointer;
+  width: 100%; 
 }
 
 button:hover {
   background-color: #45a049;
-}
-
-.forgot-password {
-  align-self: flex-end;
-  color: #0C2A92;
-  text-decoration: none;
-  margin-bottom: 20px;
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
-}
-
-.image {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.text-danger {
-  color: red;
-  font-size: 0.875em;
 }
 </style>
