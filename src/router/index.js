@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '../components/auth/LoginPage.vue';
 import ForgotPassword from '../components/auth/ForgotPassword.vue';
 import ResetPassword from '../components/auth/ResetPassword.vue';
-import NewsManagement from '../components/admin/NewsManagement.vue'
+import NewsManagement from '../components/admin/NewsManagement.vue';
+import CreateNews from '../components/admin/CreateNews.vue';
 
 const routes = [
     {
@@ -24,7 +25,12 @@ const routes = [
         path: '/news-management',
         name: 'NewsManagement',
         component: NewsManagement,
-      },
+    },
+    {
+        path: '/create-news',
+        name: 'CreateNews',
+        component: CreateNews,
+    },
 ];
 
 const router = createRouter({
