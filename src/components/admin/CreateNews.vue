@@ -69,74 +69,74 @@
     </div>
   </template>
   
-  <!-- <script>
+  <script>
   import { ref } from 'vue';
-  // import { CKEditor } from '@ckeditor/ckeditor5-vue';
-  // import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-  
-  export default {
-    components: {
-      // ckeditor: CKEditor.component
-    },
-    setup() {
-      const category = ref('');
-      const title = ref('');
-      const slug = ref('');
-      const image = ref(null);
-      const content = ref('');
-      const status = ref('Published');
-      const categories = ref(['Category 1', 'Category 2', 'Category 3']); // Replace with actual categories
-      // const editor = ClassicEditor;
-      const editorConfig = {
-        toolbar: [
-          'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote',
-          'undo', 'redo', 'imageUpload', 'heading', 'insertTable', 'mediaEmbed'
-        ]
-      };
-  
-      const handleSubmit = () => {
-        console.log({
-          category: category.value,
-          title: title.value,
-          slug: slug.value,
-          image: image.value,
-          content: content.value,
-          status: status.value
-        });
-        // Add your form submission logic here
-      };
-  
-      const handleCancel = () => {
-        // Add your cancel logic here
-      };
-  
-      const saveDraft = () => {
-        console.log('Save as draft');
-        // Add your save draft logic here
-      };
-  
-      const handleImageUpload = (event) => {
-        image.value = event.target.files[0];
-      };
-  
-      return {
-        category,
-        title,
-        slug,
-        image,
-        content,
-        status,
-        categories,
-        editor,
-        editorConfig,
-        handleSubmit,
-        handleCancel,
-        saveDraft,
-        handleImageUpload
-      };
-    }
-  };
-  </script> -->
+// import { CKEditor } from '@ckeditor/ckeditor5-vue';
+// import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
+export default {
+  components: {
+    // CKEditor
+  },
+  setup() {
+    const category = ref('');
+    const title = ref('');
+    const slug = ref('');
+    const image = ref(null);
+    const content = ref('');
+    const status = ref('Published');
+    const categories = ref(['Category 1', 'Category 2', 'Category 3']); 
+    // const editor = ClassicEditor;
+    const editorConfig = {
+      toolbar: [
+        'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote',
+        'undo', 'redo', 'imageUpload', 'heading', 'insertTable', 'mediaEmbed'
+      ]
+    };
+
+    const handleSubmit = () => {
+      console.log({
+        category: category.value,
+        title: title.value,
+        slug: slug.value,
+        image: image.value,
+        content: content.value,
+        status: status.value
+      });
+      // Add your form submission logic here
+    };
+
+    const handleCancel = () => {
+      // Add your cancel logic here
+    };
+
+    const saveDraft = () => {
+      console.log('Save as draft');
+      // Add your save draft logic here
+    };
+
+    const handleImageUpload = (event) => {
+      image.value = event.target.files[0];
+    };
+
+    return {
+      category,
+      title,
+      slug,
+      image,
+      content,
+      status,
+      categories,
+      // editor,
+      editorConfig,
+      handleSubmit,
+      handleCancel,
+      saveDraft,
+      handleImageUpload
+    };
+  }
+};
+  </script>
   
   <style scoped>
   body {

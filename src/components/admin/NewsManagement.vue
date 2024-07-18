@@ -5,9 +5,9 @@
         <div class="p-3">
           <h2>Admin</h2>
           <nav class="nav flex-column">
-            <router-link class="nav-link text-white" to="/tours">Tours</router-link>
-            <router-link class="nav-link text-white" to="/news-management">News</router-link>
-            <router-link class="nav-link text-white" to="/bookings">Bookings</router-link>
+            <router-link class="nav-link text-white" to="/tours" active-class="active-link">Tours</router-link>
+            <router-link class="nav-link text-white" to="/news-management" active-class="active-link">News</router-link>
+            <router-link class="nav-link text-white" to="/bookings" active-class="active-link">Bookings</router-link>
           </nav>
         </div>
       </div>
@@ -162,4 +162,16 @@ h1 {
   height: 40px;
   border-radius: 50%;
 }
+
+.nav-link {
+  color: white;
+  /* Các kiểu dáng khác cho liên kết */
+}
+
+.nav-link.active-link {
+  color: yellow; 
+  
+}
+
+
 </style>

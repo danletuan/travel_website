@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from '../components/auth/LoginPage.vue';
-import ForgotPassword from '../components/auth/ForgotPassword.vue';
-import ResetPassword from '../components/auth/ResetPassword.vue';
-import NewsManagement from '../components/admin/NewsManagement.vue';
+import LoginPage from '../views/LoginPage.vue';
+import ForgotPassword from '../views/ForgotPassword.vue';
+import ResetPassword from '../views/ResetPassword.vue';
+import ListNews from '../views/ListNews.vue';
 import CreateNews from '../components/admin/CreateNews.vue';
 
 const routes = [
@@ -22,9 +22,9 @@ const routes = [
         component: ResetPassword,
     },
     {
-        path: '/news-management',
-        name: 'NewsManagement',
-        component: NewsManagement,
+        path: '/list-news',
+        name: 'ListNews',
+        component: ListNews,
     },
     {
         path: '/create-news',
