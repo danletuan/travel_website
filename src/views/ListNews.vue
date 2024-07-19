@@ -14,6 +14,10 @@
             <button class="px-3 py-1 d-flex align-items-center add-news">
               <img class="me-2" src="../assets/admin/icon3.png" alt="" />Add News
             </button>
+            <!-- New element to display selected items count -->
+            <div v-if="selectedCount > 0" class="selected-count ms-3">
+              {{ selectedCount }} row{{ selectedCount > 1 ? 's' : '' }} selected
+            </div>
           </div>
           <div class="searching">
             <img class="searching-icon" src="../assets/admin/icon4.png" alt="" />
@@ -21,6 +25,7 @@
           </div>
         </div>
         <div v-if="isFilterVisible" class="filter-options w-100">
+          <!-- Existing filter options -->
           <div>
             <label>Status:</label>
             <input class="ms-2 me-1" type="checkbox" v-model="filterStatus.published" /> Published
@@ -35,13 +40,17 @@
         </div>
         <div v-if="selectedItems.includes(true)" class="d-flex mb-3 align-items-center selected-actions">
           <button @click="deleteSelected" class="delete-button me-5">
-            <img src="../assets/admin/delete.png" alt="" /> Delete</button>
+            <img src="../assets/admin/delete.png" alt="" /> Delete
+          </button>
           <button @click="changeStatusSelected(true)" class="publish-button me-5">
-            <img src="../assets/admin/published.png" alt="" /> Published</button>
+            <img src="../assets/admin/published.png" alt="" /> Published
+          </button>
           <button @click="changeStatusSelected(false)" class="unpublish-button">
-            <img  src="../assets/admin/unpublished.png" alt="" /> Unpublished</button>
+            <img src="../assets/admin/unpublished.png" alt="" /> Unpublished
+          </button>
         </div>
         <ul class="news-list">
+          <!-- Existing news list -->
           <li class="d-flex justify-content-between align-items-center news-header">
             <input class="news-checkbox" type="checkbox" @click="selectAllItems" v-model="selectAll" />
             <div class="news-image">Image</div>
@@ -78,7 +87,7 @@
         </div>
       </div>
     </AdminLayout>
-  </template>
+</template>  
   
   <script>
   import AdminLayout from "@/layouts/AdminLayout.vue";
@@ -150,98 +159,102 @@
         },
         ]);
   
-      const selectAll = ref(false);
-      const selectedItems = ref(Array(listNews.value.length).fill(false));
-      const pageSize = 5;
-      const currentPage = ref(1);
-      const isFilterVisible = ref(false);
-      const searchQuery = ref("");
-      const filterStatus = ref({
+        const selectAll = ref(false);
+        const selectedItems = ref(Array(listNews.value.length).fill(false));
+        const pageSize = 5;
+        const currentPage = ref(1);
+        const isFilterVisible = ref(false);
+        const searchQuery = ref("");
+        const filterStatus = ref({
         published: true,
         unpublished: true,
         draft: true,
-      });
-      const filterDate = ref("");
-      const filterApplied = ref(false);
-  
-      const filteredNews = computed(() => {
+        });
+        const filterDate = ref("");
+        const filterApplied = ref(false);
+
+        const filteredNews = computed(() => {
         if (!filterApplied.value) {
-          return listNews.value;
+            return listNews.value;
         }
         return listNews.value.filter((item) => {
-          const statusMatch =
+            const statusMatch =
             (filterStatus.value.published && item.published) ||
             (filterStatus.value.unpublished && !item.published) ||
             (filterStatus.value.draft && item.draft);
-          const dateMatch = filterDate.value ? item.date === filterDate.value : true;
-          const searchMatch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase());
-          return statusMatch && dateMatch && searchMatch;
+            const dateMatch = filterDate.value ? item.date === filterDate.value : true;
+            const searchMatch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase());
+            return statusMatch && dateMatch && searchMatch;
         });
-      });
-  
-      const totalPages = computed(() => {
+        });
+
+        const totalPages = computed(() => {
         return Math.ceil(filteredNews.value.length / pageSize);
-      });
-  
-      const displayedNews = computed(() => {
+        });
+
+        const displayedNews = computed(() => {
         const start = (currentPage.value - 1) * pageSize;
         return filteredNews.value.slice(start, start + pageSize);
-      });
-  
-      const selectAllItems = (event) => {
+        });
+
+        const selectedCount = computed(() => {
+        return selectedItems.value.filter(Boolean).length;
+        });
+
+        const selectAllItems = (event) => {
         const isChecked = event.target.checked;
         selectedItems.value = Array(displayedNews.value.length).fill(isChecked);
-      };
-  
-      const selectItem = (index) => {
+        };
+
+        const selectItem = (index) => {
         selectedItems.value[index] = !selectedItems.value[index];
         checkSelectAll();
-      };
-  
-      const checkSelectAll = () => {
-        selectAll.value = selectedItems.value.every((item) => item);
-      };
-  
-      const deleteSelected = () => {
+        };
+
+        const checkSelectAll = () => {
+        selectAll.value = selectedItems.value.every((item) => item) || selectedItems.value.length > 0;
+        };
+
+        const deleteSelected = () => {
         listNews.value = listNews.value.filter((_, index) => !selectedItems.value[index]);
         selectedItems.value = Array(listNews.value.length).fill(false);
         selectAll.value = false;
-      };
-  
-      const changeStatusSelected = (status) => {
+        };
+
+        const changeStatusSelected = (status) => {
         listNews.value = listNews.value.map((item, index) => {
-          if (selectedItems.value[index]) {
+            if (selectedItems.value[index]) {
             return { ...item, published: status };
-          }
-          return item;
+            }
+            return item;
         });
         selectedItems.value = Array(listNews.value.length).fill(false);
         selectAll.value = false;
-      };
-  
-      const prevPage = () => {
+        };
+
+        const prevPage = () => {
         if (currentPage.value > 1) {
-          currentPage.value--;
+            currentPage.value--;
         }
-      };
-  
-      const nextPage = () => {
+        };
+
+        const nextPage = () => {
         if (currentPage.value < totalPages.value) {
-          currentPage.value++;
+            currentPage.value++;
         }
-      };
-  
-      const toggleFilter = () => {
+        };
+
+        const toggleFilter = () => {
         isFilterVisible.value = !isFilterVisible.value;
-      };
-  
-      const applyFilter = () => {
+        };
+
+        const applyFilter = () => {
         filterApplied.value = true;
         currentPage.value = 1;
         isFilterVisible.value = false;
-      };
-  
-      return {
+        };
+
+        return {
         listNews,
         selectAll,
         selectedItems,
@@ -249,6 +262,7 @@
         totalPages,
         displayedNews,
         filteredNews,
+        selectedCount,
         isFilterVisible,
         searchQuery,
         filterStatus,
@@ -261,10 +275,10 @@
         nextPage,
         toggleFilter,
         applyFilter,
-      };
+        };
     },
-  };
-  </script>
+};
+</script>
   
 <style scoped>
 * {
@@ -497,6 +511,13 @@ cursor: pointer;
   padding: 10px 16px 10px 16px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.selected-count {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 17.5px;
+  text-align: left;
 }
 
 </style>
