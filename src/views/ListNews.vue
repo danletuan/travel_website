@@ -23,20 +23,23 @@
         <div v-if="isFilterVisible" class="filter-options w-100">
           <div>
             <label>Status:</label>
-            <input type="checkbox" v-model="filterStatus.published" /> Published
-            <input type="checkbox" v-model="filterStatus.unpublished" /> Unpublished
-            <input type="checkbox" v-model="filterStatus.draft" /> Draft
+            <input class="ms-2 me-1" type="checkbox" v-model="filterStatus.published" /> Published
+            <input class="ms-2 me-1" type="checkbox" v-model="filterStatus.unpublished" /> Unpublished
+            <input class="ms-2 me-1" type="checkbox" v-model="filterStatus.draft" /> Draft
           </div>
           <div>
             <label>Created At:</label>
             <input type="date" v-model="filterDate" />
           </div>
-          <button @click="applyFilter" class="apply-button justify-content-end">Apply</button>
+          <button @click="applyFilter" class="apply-button ms-auto">Apply</button>
         </div>
         <div v-if="selectedItems.includes(true)" class="d-flex mb-3 align-items-center selected-actions">
-          <button @click="deleteSelected" class="delete-button me-2">Delete</button>
-          <button @click="changeStatusSelected(true)" class="publish-button me-2">Published</button>
-          <button @click="changeStatusSelected(false)" class="unpublish-button">Unpublished</button>
+          <button @click="deleteSelected" class="delete-button me-5">
+            <img src="../assets/admin/delete.png" alt="" /> Delete</button>
+          <button @click="changeStatusSelected(true)" class="publish-button me-5">
+            <img src="../assets/admin/published.png" alt="" /> Published</button>
+          <button @click="changeStatusSelected(false)" class="unpublish-button">
+            <img  src="../assets/admin/unpublished.png" alt="" /> Unpublished</button>
         </div>
         <ul class="news-list">
           <li class="d-flex justify-content-between align-items-center news-header">
@@ -47,7 +50,7 @@
             <div class="news-status">Status</div>
             <div class="news-action"></div>
           </li>
-          <li v-for="(item, index) in filteredNews" :key="item.id" class="d-flex justify-content-between news-item">
+          <li v-for="(item, index) in displayedNews" :key="item.id" class="d-flex justify-content-between news-item">
             <input class="news-checkbox" type="checkbox" @click="selectItem(index)" v-model="selectedItems[index]" />
             <img :src="item.url" alt="news image" class="news-image" />
             <div class="news-title">{{ item.title }}</div>
@@ -76,198 +79,198 @@
       </div>
     </AdminLayout>
   </template>
-
-<script>
-import AdminLayout from "@/layouts/AdminLayout.vue";
-import { ref, computed } from "vue";
-
-export default {
-  name: "ListNews",
-  components: {
-    AdminLayout,
-  },
-
-  setup() {
-    const listNews = ref([
-      {
-        id: 1,
-        url: require("@/assets/admin/image.png"),
-        title: "Where can I go? 5 amazing countries that are open right now",
-        date: "2024-06-30",
+  
+  <script>
+  import AdminLayout from "@/layouts/AdminLayout.vue";
+  import { ref, computed } from "vue";
+  
+  export default {
+    name: "ListNews",
+    components: {
+      AdminLayout,
+    },
+  
+    setup() {
+        const listNews = ref([
+        {
+            id: 1,
+            url: require("@/assets/admin/image.png"),
+            title: "Where can I go? 5 amazing countries that are open right now",
+            date: "2024-06-30",
+            published: true,
+            draft: true,
+        },
+        {
+            id: 2,
+            url: require("@/assets/admin/image.png"),
+            title: "Where can I go? 5 amazing countries that are open right now",
+            date: "2024-06-30",
+            published: true,
+            draft: false,
+        },
+        {
+            id: 3,
+            url: require("@/assets/admin/image.png"),
+            title: "Where can I go? 5 amazing countries that are open right now",
+            date: "2024-06-30",
+            published: false,
+            draft: true,
+        },
+        {
+            id: 4,
+            url: require("@/assets/admin/image.png"),
+            title: "Where can I go? 5 amazing countries that are open right now",
+            date: "2024-06-30",
+            published: false,
+            draft: false,
+        },
+        {
+            id: 5,
+            url: require("@/assets/admin/image.png"),
+            title: "Where can I go? 5 amazing countries that are open right now",
+            date: "2024-06-30",
+            published: null,
+            draft: true,
+        },
+        {
+            id: 6,
+            url: require("@/assets/admin/image.png"),
+            title: "Where can I go? 5 amazing countries that are open right now",
+            date: "2024-06-30",
+            published: null,
+            draft: true,
+        },
+        {
+            id: 7,
+            url: require("@/assets/admin/image.png"),
+            title: "Where can I go? 5 amazing countries that are open right now",
+            date: "2024-06-30",
+            published: null,
+            draft: true,
+        },
+        ]);
+  
+      const selectAll = ref(false);
+      const selectedItems = ref(Array(listNews.value.length).fill(false));
+      const pageSize = 5;
+      const currentPage = ref(1);
+      const isFilterVisible = ref(false);
+      const searchQuery = ref("");
+      const filterStatus = ref({
         published: true,
+        unpublished: true,
         draft: true,
-      },
-      {
-        id: 2,
-        url: require("@/assets/admin/image.png"),
-        title: "Where can I go? 5 amazing countries that are open right now",
-        date: "2024-06-30",
-        published: true,
-        draft: false,
-      },
-      {
-        id: 3,
-        url: require("@/assets/admin/image.png"),
-        title: "Where can I go? 5 amazing countries that are open right now",
-        date: "2024-06-30",
-        published: false,
-        draft: true,
-      },
-      {
-        id: 4,
-        url: require("@/assets/admin/image.png"),
-        title: "Where can I go? 5 amazing countries that are open right now",
-        date: "2024-06-30",
-        published: false,
-        draft: false,
-      },
-      {
-        id: 5,
-        url: require("@/assets/admin/image.png"),
-        title: "Where can I go? 5 amazing countries that are open right now",
-        date: "2024-06-30",
-        published: null,
-        draft: true,
-      },
-      {
-        id: 6,
-        url: require("@/assets/admin/image.png"),
-        title: "Where can I go? 5 amazing countries that are open right now",
-        date: "2024-06-30",
-        published: null,
-        draft: true,
-      },
-      {
-        id: 7,
-        url: require("@/assets/admin/image.png"),
-        title: "Where can I go? 5 amazing countries that are open right now",
-        date: "2024-06-30",
-        published: null,
-        draft: true,
-      },
-    ]);
-
-    const selectAll = ref(false);
-    const selectedItems = ref(Array(listNews.value.length).fill(false));
-    const pageSize = 5;
-    let currentPage = ref(1);
-    const isFilterVisible = ref(false);
-    const searchQuery = ref("");
-    const filterStatus = ref({
-      published: true,
-      unpublished: true,
-      draft: true,
-    });
-    const filterDate = ref("");
-
-    const totalPages = computed(() => Math.ceil(listNews.value.length / pageSize));
-
-    const displayedNews = computed(() => {
-      const start = (currentPage.value - 1) * pageSize;
-      const end = start + pageSize;
-      return listNews.value.slice(start, end);
-    });
-
-    const filteredNews = computed(() => {
-      return displayedNews.value.filter((item) => {
-        const statusMatch =
-          (filterStatus.value.published && item.published) ||
-          (filterStatus.value.unpublished && !item.published) ||
-          (filterStatus.value.draft && item.draft);
-        const dateMatch = filterDate.value ? item.date === filterDate.value : true;
-        const searchMatch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase());
-        return statusMatch && dateMatch && searchMatch;
       });
-    });
-
-    const selectAllItems = (event) => {
-      const isChecked = event.target.checked;
-      selectedItems.value = Array(displayedNews.value.length).fill(isChecked);
-    };
-
-    const selectItem = (index) => {
-      selectedItems.value[index] = !selectedItems.value[index];
-      checkSelectAll();
-    };
-
-    const checkSelectAll = () => {
-      selectAll.value = selectedItems.value.every((item) => item) || selectedItems.value.length > 0;
-    };
-
-    const deleteSelected = () => {
-      listNews.value = listNews.value.filter((_, index) => !selectedItems.value[index]);
-      selectedItems.value = Array(listNews.value.length).fill(false);
-      selectAll.value = false;
-    };
-
-    const changeStatusSelected = (status) => {
-      listNews.value = listNews.value.map((item, index) => {
-        if (selectedItems.value[index]) {
-          return { ...item, published: status };
+      const filterDate = ref("");
+      const filterApplied = ref(false);
+  
+      const filteredNews = computed(() => {
+        if (!filterApplied.value) {
+          return listNews.value;
         }
-        return item;
+        return listNews.value.filter((item) => {
+          const statusMatch =
+            (filterStatus.value.published && item.published) ||
+            (filterStatus.value.unpublished && !item.published) ||
+            (filterStatus.value.draft && item.draft);
+          const dateMatch = filterDate.value ? item.date === filterDate.value : true;
+          const searchMatch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase());
+          return statusMatch && dateMatch && searchMatch;
+        });
       });
-      selectedItems.value = Array(listNews.value.length).fill(false);
-      selectAll.value = false;
-    };
-
-    const prevPage = () => {
-      if (currentPage.value > 1) {
-        currentPage.value--;
-      }
-    };
-
-    const nextPage = () => {
-      if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-      }
-    };
-
-    const toggleFilter = () => {
-      isFilterVisible.value = !isFilterVisible.value;
-    };
-
-    const applyFilter = () => {
-      currentPage.value = 1;
-    };
-
-    return {
-      listNews,
-      selectAll,
-      selectedItems,
-      currentPage,
-      totalPages,
-      displayedNews,
-      filteredNews,
-      isFilterVisible,
-      searchQuery,
-      filterStatus,
-      filterDate,
-      selectAllItems,
-      selectItem,
-      deleteSelected,
-      changeStatusSelected,
-      prevPage,
-      nextPage,
-      toggleFilter,
-      applyFilter,
-    };
-  },
-};
-</script>
-
+  
+      const totalPages = computed(() => {
+        return Math.ceil(filteredNews.value.length / pageSize);
+      });
+  
+      const displayedNews = computed(() => {
+        const start = (currentPage.value - 1) * pageSize;
+        return filteredNews.value.slice(start, start + pageSize);
+      });
+  
+      const selectAllItems = (event) => {
+        const isChecked = event.target.checked;
+        selectedItems.value = Array(displayedNews.value.length).fill(isChecked);
+      };
+  
+      const selectItem = (index) => {
+        selectedItems.value[index] = !selectedItems.value[index];
+        checkSelectAll();
+      };
+  
+      const checkSelectAll = () => {
+        selectAll.value = selectedItems.value.every((item) => item);
+      };
+  
+      const deleteSelected = () => {
+        listNews.value = listNews.value.filter((_, index) => !selectedItems.value[index]);
+        selectedItems.value = Array(listNews.value.length).fill(false);
+        selectAll.value = false;
+      };
+  
+      const changeStatusSelected = (status) => {
+        listNews.value = listNews.value.map((item, index) => {
+          if (selectedItems.value[index]) {
+            return { ...item, published: status };
+          }
+          return item;
+        });
+        selectedItems.value = Array(listNews.value.length).fill(false);
+        selectAll.value = false;
+      };
+  
+      const prevPage = () => {
+        if (currentPage.value > 1) {
+          currentPage.value--;
+        }
+      };
+  
+      const nextPage = () => {
+        if (currentPage.value < totalPages.value) {
+          currentPage.value++;
+        }
+      };
+  
+      const toggleFilter = () => {
+        isFilterVisible.value = !isFilterVisible.value;
+      };
+  
+      const applyFilter = () => {
+        filterApplied.value = true;
+        currentPage.value = 1;
+        isFilterVisible.value = false;
+      };
+  
+      return {
+        listNews,
+        selectAll,
+        selectedItems,
+        currentPage,
+        totalPages,
+        displayedNews,
+        filteredNews,
+        isFilterVisible,
+        searchQuery,
+        filterStatus,
+        filterDate,
+        selectAllItems,
+        selectItem,
+        deleteSelected,
+        changeStatusSelected,
+        prevPage,
+        nextPage,
+        toggleFilter,
+        applyFilter,
+      };
+    },
+  };
+  </script>
+  
 <style scoped>
 * {
   box-sizing: border-box;
   margin: 0 ;
   padding: 0 ;
-}
-
-.container {
-  padding-left: 3.75rem !important;
-  padding-right: 3.75rem !important;
-  padding-top: 3rem !important;
-  padding-bottom: 3rem !important;
 }
 
 .filter {
@@ -315,7 +318,7 @@ export default {
 }
 
 .news-header {
-  padding: 16px 25px 16px 25px !important;
+  padding: 16px 25px 16px 25px ;
   border-radius: 8px 8px 0px 0px;
   border: 1px solid #eaecf0;
   color: #8a92a6;
@@ -324,7 +327,7 @@ export default {
 
 .news-item {
   color: #232d42;
-  padding: 20px 25px 20px 25px !important;
+  padding: 20px 25px 20px 25px ;
   background-color: white;
   border: 1px solid #eaecf0;
 }
@@ -332,32 +335,32 @@ export default {
 .news-checkbox {
   width: 20px;
   height: 20px;
-  margin-right: 30px !important;
+  margin-right: 30px;
 }
 
 .news-image {
   min-width: 80px;
   max-height: 50px;
-  margin-right: 30px !important;
+  margin-right: 30px ;
 }
 
 .news-title {
   width: 480px;
-  margin-right: 30px !important;
+  margin-right: 30px;
 }
 
 .news-date {
   min-width: 95px;
-  margin-right: 30px !important;
+  margin-right: 30px;
 }
 
 .news-status {
   min-width: 95px;
-  margin-right: 30px !important;
+  margin-right: 30px;
 }
 
 .status-text {
-  padding: 0px 15px 0px 15px !important;
+  padding: 0px 15px 0px 15px;
   border-radius: 12px;
   color: white;
   width: min-content;
@@ -387,13 +390,13 @@ export default {
 .news-pages {
   color: #344054;
   background-color: white;
-  padding: 12px 24px 16px 24px !important;
+  padding: 12px 24px 16px 24px;
   border-radius: 0px 0px 8px 8px;
   border: 1px solid #eaecf0;
 }
 
 .news-pages button {
-  padding: 8px 14px 8px 14px !important;
+  padding: 8px 14px 8px 14px;
   border-radius: 8px 0px 0px 0px;
   border: 1px 0px 0px 0px;
   opacity: 0px;
@@ -437,25 +440,20 @@ border-radius: 8px;
 .delete-button,
 .publish-button,
 .unpublish-button {
-height: 36px;
-padding: 0 15px;
-border-radius: 8px;
-border: 1px solid transparent;
-color: white;
+background-color: transparent;
+border: none;
 cursor: pointer;
 }
-
 .delete-button {
-background-color: #ED4C5C;
+  color: #ED4C5C; 
 }
 
-.publish-button {
-background-color: #232D42;
+.publish-button,
+.unpublish-button
+ {
+  color: #232D42; 
 }
 
-.unpublish-button {
-background-color: #232D42;
-}
 
 .filter-active {
   background-color: #ffc107;
@@ -481,23 +479,25 @@ background-color: #232D42;
 .filter-options > div {
   display: flex;
   align-items: center;
-  margin-right: 10rem !important;
+  margin-right: 1rem ;
 }
 .filter-options label {
-  margin-right: 10rem !important;
+  margin-right: 0.5rem ;
 }
 .filter-options input[type="checkbox"] {
-  margin-right: 10rem !important;
+  margin-right: 0.5rem ;
 }
 .filter-options input[type="date"] {
   padding: 0.25rem;
+  margin-left: 1rem ;
 }
 .apply-button {
   background-color: #43B97F;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border: 1px;
+  padding: 10px 16px 10px 16px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 </style>
+  

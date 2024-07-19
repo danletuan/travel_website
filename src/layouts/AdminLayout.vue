@@ -57,23 +57,23 @@
   <style scoped>
   * {
     box-sizing: border-box;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: 0;
+    padding: 0;
   }
   
   .nav {
-    margin-left: 30px !important;
+    margin-left: 30px;
   }
   
   .nav-link {
     display: flex;
     align-items: center;
-    margin-left: 10px !important;
+    margin-left: 10px ;
     color: #a4a6b3; 
   }
   
   .nav-link .icon {
-    margin-right: 10px !important;
+    margin-right: 10px ;
   }
   
   .nav-link:hover {
