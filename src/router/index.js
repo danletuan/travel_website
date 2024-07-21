@@ -3,7 +3,7 @@ import LoginPage from '../views/LoginPage.vue';
 import ForgotPassword from '../views/ForgotPassword.vue';
 import ResetPassword from '../views/ResetPassword.vue';
 import ListNews from '../views/ListNews.vue';
-import CreateNews from '../components/admin/CreateNews.vue';
+import CreateNews from '../views/CreateNews.vue';
 
 const routes = [
     {
