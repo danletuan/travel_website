@@ -1,5 +1,4 @@
 <template>
-    <AdminLayout>
       <div class="container">
         <h4 class="fw-bold mb-5">Create News</h4>
         <div class="mb-3 justify-content-between p-3 content">
@@ -51,18 +50,15 @@
           </form>
         </div>
       </div>
-    </AdminLayout>
   </template>
   
   <script>
-  import AdminLayout from "@/layouts/AdminLayout.vue";
   import CKEditor from '@ckeditor/ckeditor5-vue';
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   
   export default {
     name: "CreateNews",
     components: {
-      AdminLayout,
       ckeditor: CKEditor.component
     },
     data() {

@@ -5,7 +5,7 @@
           <div
             class="col-md-7 col-lg-6 d-flex align-items-center justify-content-center login-form"
           >
-            <slot></slot>
+          <router-view></router-view>
           </div>
           <div class="d-none d-md-block col-md-5 col-lg-6 image-container">
             <img

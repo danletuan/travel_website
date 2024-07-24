@@ -1,56 +1,49 @@
 <template>
-    <AuthLayout>
-        <div class="container">
-          <h1>Reset password</h1>
-          <form @submit.prevent="handleSubmit">
-            <div class="form-group position-relative">
-              <label for="password">Password</label>
-              <input 
-                type="password" 
-                class="form-control" 
-                id="password" 
-                name="password" 
-                v-model="state.newPassword" 
-                placeholder="Enter your new password"
-              >
-              <img src="../assets/auth/eye.png" class="eye-icon">
-              <div v-if="passwordErrors.length" class="text-danger">
-                <div v-for="error in passwordErrors" :key="error">{{ error }}</div>
-              </div>
-            </div>
-            <div class="form-group position-relative">
-              <label for="confirmPassword">Confirm Password</label>
-              <input 
-                type="password" 
-                class="form-control" 
-                id="confirmPassword" 
-                name="confirmPassword" 
-                v-model="state.confirmPassword" 
-                placeholder="Re-enter password"
-              >
-              <img src="../assets/auth/eye.png" class="eye-icon">
-              <div v-if="confirmPasswordErrors.length" class="text-danger">
-                <div v-for="error in confirmPasswordErrors" :key="error">{{ error }}</div>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-success btn-block">Update Password</button>
-          </form>
+    <div class="container">
+      <h1>Reset password</h1>
+      <form @submit.prevent="handleSubmit">
+        <div class="form-group position-relative">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            name="password" 
+            v-model="state.newPassword" 
+            placeholder="Enter your new password"
+          >
+          <img src="../assets/auth/eye.png" class="eye-icon">
+          <div v-if="passwordErrors.length" class="text-danger">
+            <div v-for="error in passwordErrors" :key="error">{{ error }}</div>
+          </div>
         </div>
-    </AuthLayout>
+        <div class="form-group position-relative">
+          <label for="confirmPassword">Confirm Password</label>
+          <input 
+            type="password" 
+            class="form-control" 
+            id="confirmPassword" 
+            name="confirmPassword" 
+            v-model="state.confirmPassword" 
+            placeholder="Re-enter password"
+          >
+          <img src="../assets/auth/eye.png" class="eye-icon">
+          <div v-if="confirmPasswordErrors.length" class="text-danger">
+            <div v-for="error in confirmPasswordErrors" :key="error">{{ error }}</div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success btn-block">Update Password</button>
+      </form>
+    </div>
   </template>
   
   <script>
   import { reactive, computed } from 'vue';
   import useVuelidate from '@vuelidate/core';
   import { required, sameAs } from '@vuelidate/validators';
-  import AuthLayout from "@/layouts/AuthLayout.vue";
   
   export default {
     name: 'ResetPassword',
-
-    components: {
-        AuthLayout,
-    },
 
     setup() {
       const state = reactive({

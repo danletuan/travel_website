@@ -1,48 +1,40 @@
 <template>
-    <AuthLayout>
-        <div class="container">
-          <div v-if="!showCheckEmailMessage">
-            <h1 class="display-4 mb-3">Forgot password</h1>
-            <p class="text-muted mb-4">Please enter your email to reset the password</p>
-            <form @submit.prevent="handleSubmit">
-              <div class="form-group mb-3">
-                <label for="email">Email address</label>
-                <input 
-                  type="email" 
-                  class="form-control" 
-                  id="email" 
-                  name="email" 
-                  v-model="state.email" 
-                  placeholder="Enter your email"
-                >
-                <div v-if="emailErrors.length" class="text-danger mt-1">
-                  <div v-for="error in emailErrors" :key="error">{{ error }}</div>
-                </div>
-              </div>
-              <button type="submit" class="btn btn-success w-100">Send</button>
-            </form>
+    <div class="container">
+      <div v-if="!showCheckEmailMessage">
+        <h1 class="display-4 mb-3">Forgot password</h1>
+        <p class="text-muted mb-4">Please enter your email to reset the password</p>
+        <form @submit.prevent="handleSubmit">
+          <div class="form-group mb-3">
+            <label for="email">Email address</label>
+            <input 
+              type="email" 
+              class="form-control" 
+              id="email" 
+              name="email" 
+              v-model="state.email" 
+              placeholder="Enter your email"
+            >
+            <div v-if="emailErrors.length" class="text-danger mt-1">
+              <div v-for="error in emailErrors" :key="error">{{ error }}</div>
+            </div>
           </div>
-          <div v-else>
-            <h1 class="display-4 mb-3">Check your email</h1>
-            <p class="text-muted mb-4">We sent you an email with instructions for resetting your password</p>
-          </div>
-        </div>
-    </AuthLayout>
-    
+          <button type="submit" class="btn btn-success w-100">Send</button>
+        </form>
+      </div>
+      <div v-else>
+        <h1 class="display-4 mb-3">Check your email</h1>
+        <p class="text-muted mb-4">We sent you an email with instructions for resetting your password</p>
+      </div>
+    </div>
 </template>
   
   <script>
   import { ref, reactive, computed } from 'vue';
   import useVuelidate from '@vuelidate/core';
   import { required, email } from '@vuelidate/validators';
-  import AuthLayout from "@/layouts/AuthLayout.vue";
   
   export default {
     name: 'ForgotPassword',
-
-    components: {
-        AuthLayout,
-    },
 
     setup() {
       const state = reactive({

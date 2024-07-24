@@ -1,57 +1,52 @@
 <template>
-    <AuthLayout>
-        <div class="container">
-            <h1 class="display-4 mb-3">Welcome back!</h1>
-            <p class="text-muted mb-4">Enter your Credentials to access your account</p>
-            <form @submit.prevent="handleSubmit">
-            <div class="form-group mb-3">
-                <label for="email">Email address</label>
-                <input 
-                type="email" 
-                class="form-control" 
-                id="email" 
-                name="email" 
-                v-model="state.email" 
-                placeholder="Enter your email"
-                >
-                <div v-if="emailErrors.length" class="text-danger mt-1">
-                <div v-for="error in emailErrors" :key="error">{{ error }}</div>
-                </div>
+    <div class="container">
+        <h1 class="display-4 mb-3">Welcome back!</h1>
+        <p class="text-muted mb-4">Enter your Credentials to access your account</p>
+        <form @submit.prevent="handleSubmit">
+        <div class="form-group mb-3">
+            <label for="email">Email address</label>
+            <input 
+            type="email" 
+            class="form-control" 
+            id="email" 
+            name="email" 
+            v-model="state.email" 
+            placeholder="Enter your email"
+            >
+            <div v-if="emailErrors.length" class="text-danger mt-1">
+            <div v-for="error in emailErrors" :key="error">{{ error }}</div>
             </div>
-            <div class="form-group mb-3 position-relative">
-                <label for="password">Password</label>
-                <input 
-                type="password" 
-                class="form-control" 
-                id="password" 
-                name="password" 
-                v-model="state.password" 
-                placeholder="Enter your password"
-                >
-                <img src="../assets/auth/eye.png" class="eye-icon">
-                <div v-if="passwordErrors.length" class="text-danger mt-1">
-                <div v-for="error in passwordErrors" :key="error">{{ error }}</div>
-                </div>
-            </div>
-            <router-link to="/forgot-password" class="forgot-password d-block mb-3 text-end">Forgot password</router-link>
-            <button type="submit" class="btn btn-success btn-block w-100">Login</button>
-            </form>
         </div>
-    </AuthLayout>
+        <div class="form-group mb-3 position-relative">
+            <label for="password">Password</label>
+            <input 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            name="password" 
+            v-model="state.password" 
+            placeholder="Enter your password"
+            >
+            <img src="../assets/auth/eye.png" class="eye-icon">
+            <div v-if="passwordErrors.length" class="text-danger mt-1">
+            <div v-for="error in passwordErrors" :key="error">{{ error }}</div>
+            </div>
+        </div>
+        <router-link to="/forgot-password" class="forgot-password d-block mb-3 text-end">Forgot password</router-link>
+        <button type="submit" class="btn btn-success btn-block w-100">Login</button>
+        </form>
+    </div>
   </template>
   
   <script>
   import { reactive, computed } from 'vue';
   import useVuelidate from '@vuelidate/core';
   import { required, email } from '@vuelidate/validators';
-  import AuthLayout from "@/layouts/AuthLayout.vue";
-  
+  import router from "@/router";
+  import { useAuthStore } from "@/stores/auth";
+
   export default {
     name: 'LoginPage',
-
-    components: {
-        AuthLayout,
-    },
 
     setup() {
       const state = reactive({
@@ -59,6 +54,7 @@
         password: ''
       });
   
+      const authStore = useAuthStore();
       const rules = {
         email: { required, email, maxLength: (value) => value.length <= 255 || 'Email must be less than 255 characters.' },
         password: { required, maxLength: (value) => value.length <= 255 || 'Password must be less than 255 characters.' }
@@ -69,8 +65,13 @@
       const handleSubmit = () => {
         v$.value.$touch();
         if (!v$.value.$invalid) {
-          console.log("Form submitted with", state.email, state.password);
+          authStore.login();
+          router.push("/admin/list-news");
         }
+        else {
+          console.log("Form failed validation");
+        }
+
       };
   
       const emailErrors = computed(() => {
@@ -93,7 +94,8 @@
         v$,
         handleSubmit,
         emailErrors,
-        passwordErrors
+        passwordErrors,
+        authStore,
       };
     }
   };
