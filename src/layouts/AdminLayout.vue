@@ -1,5 +1,5 @@
 <template>
-    <div class="account">
+    <div class="admin-layout">
       <div class="container-fluid">
         <div class="row w-100 vh-100">
           <div class="d-none d-lg-block col-lg-2 tab">
@@ -9,7 +9,7 @@
                 <img src="../assets/admin/icon1.png" alt="Tours Icon" class="me-2 icon">
                 Tours
               </router-link>
-              <router-link class="nav-link" :class="{ 'active-link': $route.path === '/list-news' }" to="/list-news">
+              <router-link class="nav-link" :class="{ 'active-link': $route.path === '/admin' }" to="/admin">
                 <img src="../assets/admin/icon1.png" alt="News Icon" class="me-2 icon">
                 News
               </router-link>
@@ -28,30 +28,57 @@
               </div>
             </div>
             <div class="px-3 px-lg-5 py-4 py-lg-5">
-              <slot></slot>
+              <router-view></router-view>
             </div>
           </div>
         </div>
       </div>
+      <div
+        class="vh-100 vw-100 d-flex justify-content-center align-items-center dialog"
+        v-if="isDialog"
+      >
+        <ConfirmDialog
+          :title="titleDialog"
+          :action="actionDialog"
+          @updateConfirm="handleConfirm"
+        />
+      </div>
     </div>
   </template>
   
-  <script>
-  import { ref } from "vue";
+  <script setup>
+  import { ref, provide } from 'vue';
+  import ConfirmDialog from '@/components/ConfirmDialog.vue';
   
-  export default {
-    name: "AdminLayout",
+  // Reactive references
+  const name = ref('John');
+  const avatar = require('../assets/admin/avatar.png');
+  const isDialog = ref(false);
+  const titleDialog = ref('');
+  const actionDialog = ref('');
   
-    setup() {
-      const name = ref("John");
-      const avatar = require("../assets/admin/avatar.png");
-  
-      return {
-        name,
-        avatar,
-      };
-    },
+
+  const confirm = ref(false);
+  provide('confirm', confirm);
+  const showDialog = (title, action) => {
+    isDialog.value = true;
+    titleDialog.value = title;
+    actionDialog.value = action;
   };
+
+  provide('showDialog', showDialog);
+
+  provide('resetConfirm', () => {
+  confirm.value = false;
+  });
+  
+
+
+  const handleConfirm = (confirmReceived) => {
+    isDialog.value = false;
+    confirm.value = confirmReceived;
+  };
+
   </script>
   
   <style scoped>
@@ -68,16 +95,16 @@
   .nav-link {
     display: flex;
     align-items: center;
-    margin-left: 10px ;
-    color: #a4a6b3; 
+    margin-left: 10px;
+    color: #a4a6b3;
   }
   
   .nav-link .icon {
-    margin-right: 10px ;
+    margin-right: 10px;
   }
   
   .nav-link:hover {
-    color: #ffffff; 
+    color: #ffffff;
   }
   
   .tab {
@@ -102,13 +129,25 @@
     height: 100px;
   }
   
-  .account,
+  .admin-layout,
   .admin {
     height: 100px;
   }
   
   .active-link {
-    color: #ffffff; 
+    color: #ffffff;
+  }
+  
+  .admin-layout {
+    z-index: 1;
+  }
+  
+  .dialog {
+    z-index: 2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
   }
   </style>
   

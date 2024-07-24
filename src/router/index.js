@@ -4,6 +4,7 @@ import ForgotPassword from '../views/ForgotPassword.vue';
 import ResetPassword from '../views/ResetPassword.vue';
 import ListNews from '../views/ListNews.vue';
 import CreateNews from '../views/CreateNews.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 
 const routes = [
     {
@@ -31,6 +32,17 @@ const routes = [
         name: 'CreateNews',
         component: CreateNews,
     },
+    {
+        path: "/admin",
+        component: AdminLayout,
+        children: [
+            {
+                path: "",
+                component: ListNews,
+            },
+        ],
+    },
+
 ];
 
 const router = createRouter({
