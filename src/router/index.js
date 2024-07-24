@@ -5,6 +5,7 @@ import ForgotPassword from '../views/ForgotPassword.vue';
 import ResetPassword from '../views/ResetPassword.vue';
 import ListNews from '../views/ListNews.vue';
 import CreateNews from '../views/CreateNews.vue';
+import EditNews from '@/views/EditNews.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
@@ -42,6 +43,11 @@ const routes = [
                 path: 'create-news',
                 component: CreateNews,
             },
+            {
+                path: "/edit-news/:id",
+                component: EditNews,
+            },
+
         ],
         meta: {
             requiresAuth: true,
