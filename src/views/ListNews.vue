@@ -10,9 +10,12 @@
           >
             <img class="me-2" src="../assets/admin/icon2.png" alt="" />Filter
           </button>
-          <button class="px-3 py-1 d-flex align-items-center add-news">
+          <router-link
+            to="/admin/create-news"
+            class="px-3 py-1 d-flex align-items-center add-news text-decoration-none"
+          >
             <img class="me-2" src="../assets/admin/icon3.png" alt="" />Add News
-          </button>
+          </router-link>
           <div v-if="selectedCount > 0" class="selected-count ms-3">
             {{ selectedCount }} row{{ selectedCount > 1 ? 's' : '' }} selected
           </div>
@@ -73,7 +76,7 @@
             <div v-if="item.draft" class="status-text text-center draft">Draft</div>
           </div>
           <div class="d-flex justify-content-center news-action">
-            <button class="edit-button me-3">
+            <button class="edit-button me-3" @click="editItem(item)">
               <img src="../assets/admin/pen.png" alt="" />
             </button>
             <button class="delete-button" @click="deleteItem(item)">
@@ -93,6 +96,7 @@
   
     <script setup>
     import { ref, computed, inject, watch } from 'vue';
+    import router from "@/router";
     
     // Define reactive state
     const listNews = ref([
@@ -221,15 +225,24 @@
     };
     
     const changeStatusSelected = (status) => {
-      listNews.value = listNews.value.map((item, index) => {
-        if (selectedItems.value[index]) {
-          return { ...item, published: status };
-        }
-        return item;
-      });
-      selectedItems.value = Array(listNews.value.length).fill(false);
-      selectAll.value = false;
-    };
+      const actionText = status ? 'Publish' : 'Unpublish';
+      showDialog(`Are you sure to ${actionText} all selected items?`, actionText);
+
+      watch(confirm, () => {
+        if (confirm.value) {
+          listNews.value = listNews.value.map((item, index) => {
+            if (selectedItems.value[index]) {
+              return { ...item, published: status };
+            }
+            return item;
+          });
+          selectedItems.value = Array(listNews.value.length).fill(false);
+          selectAll.value = false;
+    }
+    resetConfirm();
+  });
+};
+
     
     const prevPage = () => {
       if (currentPage.value > 1) {
@@ -280,8 +293,11 @@ const deleteItem = (item) => {
     resetConfirm();
   });
 
-
 };
+const editItem = (item) => {
+  router.push(`/admin/edit-news/${item.id}`);
+};
+
 
 const deleteSelected = () => {
   showDialog("Are you sure to delete all items checked?", "Delete");
@@ -298,8 +314,6 @@ const deleteSelected = () => {
 };
 
 
-
-    
 </script>
   
 <style scoped>
