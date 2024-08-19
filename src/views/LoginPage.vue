@@ -62,17 +62,21 @@
   
       const v$ = useVuelidate(rules, state);
   
-      const handleSubmit = () => {
-        v$.value.$touch();
-        if (!v$.value.$invalid) {
-          authStore.login();
+      const handleSubmit = async () => {
+      v$.value.$touch();
+      if (!v$.value.$invalid) {
+        const success = await authStore.login(state.email, state.password);
+        if (success) {
+          console.log("Đăng nhập thành công");
           router.push("/admin/list-news");
+        } else {
+          console.log("Đăng nhập thất bại");
         }
-        else {
-          console.log("Form failed validation");
-        }
+      } else {
+        console.log("Form failed validation");
+      }
+    };
 
-      };
   
       const emailErrors = computed(() => {
         const errors = [];

@@ -9,7 +9,7 @@
                 <img src="../assets/admin/icon1.png" alt="Tours Icon" class="me-2 icon">
                 Tours
               </router-link>
-              <router-link class="nav-link" :class="{ 'active-link': $route.path === '/admin' }" to="/admin">
+              <router-link class="nav-link" :class="{ 'active-link': $route.path === '/admin/list-news' }" to="/admin/list-news">
                 <img src="../assets/admin/icon1.png" alt="News Icon" class="me-2 icon">
                 News
               </router-link>

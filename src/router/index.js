@@ -8,6 +8,7 @@ import CreateNews from '../views/CreateNews.vue';
 import EditNews from '@/views/EditNews.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import RegisterPage from '@/views/RegisterPage.vue';
 
 const routes = [
     {
@@ -28,6 +29,11 @@ const routes = [
                 path: 'reset-password',
                 name: 'ResetPassword',
                 component: ResetPassword,
+            },
+            {
+                path: 'register',
+                name: 'RegisterPage',
+                component: RegisterPage,
             },
         ],
     },
