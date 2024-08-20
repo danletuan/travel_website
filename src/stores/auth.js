@@ -8,6 +8,34 @@ export const useAuthStore = defineStore('auth', {
         isAuthenticated: false,
     }),
     actions: {
+        async register(name, email, password, confirmPassword) {
+            try {
+                const response = await axios.post('http://localhost:8000/api/register', {
+                    name,
+                    email,
+                    password,
+                    password_confirmation: confirmPassword,
+                }, { withCredentials: true });
+
+                // Đăng nhập người dùng sau khi đăng ký thành công
+                this.user = response.data.user;
+                this.isAuthenticated = true;
+
+                sessionStorage.setItem('user', JSON.stringify(this.user));
+                sessionStorage.setItem('isAuthenticated', 'true');
+
+                router.push('/dashboard'); // Điều hướng người dùng sau khi đăng ký thành công
+
+                return true; // Đăng ký thành công
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    console.error('Validation Error:', error.response.data.errors);
+                } else {
+                    console.error('Lỗi đăng ký:', error.message);
+                }
+                return false; // Đăng ký thất bại
+            }
+        },
         async login(email, password) {
             try {
                 const response = await axios.post('http://localhost:8000/api/login', {

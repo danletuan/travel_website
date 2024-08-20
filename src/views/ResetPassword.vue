@@ -1,103 +1,89 @@
 <template>
-    <div class="container">
-      <h1>Reset password</h1>
-      <form @submit.prevent="handleSubmit">
-        <div class="form-group position-relative">
-          <label for="password">Password</label>
-          <input 
-            type="password" 
-            class="form-control" 
-            id="password" 
-            name="password" 
-            v-model="state.newPassword" 
-            placeholder="Enter your new password"
-          >
-          <img src="../assets/auth/eye.png" class="eye-icon">
-          <div v-if="passwordErrors.length" class="text-danger">
-            <div v-for="error in passwordErrors" :key="error">{{ error }}</div>
-          </div>
-        </div>
-        <div class="form-group position-relative">
-          <label for="confirmPassword">Confirm Password</label>
-          <input 
-            type="password" 
-            class="form-control" 
-            id="confirmPassword" 
-            name="confirmPassword" 
-            v-model="state.confirmPassword" 
-            placeholder="Re-enter password"
-          >
-          <img src="../assets/auth/eye.png" class="eye-icon">
-          <div v-if="confirmPasswordErrors.length" class="text-danger">
-            <div v-for="error in confirmPasswordErrors" :key="error">{{ error }}</div>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-success btn-block">Update Password</button>
-      </form>
-    </div>
-  </template>
-  
-  <script>
-  import { reactive, computed } from 'vue';
-  import useVuelidate from '@vuelidate/core';
-  import { required, sameAs } from '@vuelidate/validators';
-  
-  export default {
-    name: 'ResetPassword',
+  <div class="container">
+    <h1 class="display-4 mb-3" v-if="!success">Reset Password</h1>
+    <!-- Form nhập mật khẩu mới -->
+    <form @submit.prevent="handleSubmit" v-if="!success">
+      <div class="form-group mb-3">
+        <label for="password">New Password</label>
+        <input type="password" v-model="password" class="form-control" id="password" placeholder="Enter new password">
+      </div>
+      <div class="form-group mb-3">
+        <label for="password_confirmation">Confirm New Password</label>
+        <input type="password" v-model="passwordConfirmation" class="form-control" id="password_confirmation" placeholder="Confirm new password">
+      </div>
+      <button type="submit" class="btn btn-success w-100">Reset Password</button>
+    </form>
 
-    setup() {
-      const state = reactive({
-        newPassword: '',
-        confirmPassword: '',
-      });
-  
-      const rules = {
-        newPassword: { 
-          required,
-          maxLength: (value) => value.length <= 255 || 'Password must be less than 255 characters.',
-        },
-        confirmPassword: { 
-          required,
-          maxLength: (value) => value.length <= 255 || 'Password must be less than 255 characters.',
-          sameAsNewPassword: sameAs(state.newPassword),
-        },
-      };
-  
-      const v$ = useVuelidate(rules, state);
-  
-      const handleSubmit = () => {
-        v$.value.$touch();
-        if (!v$.value.$invalid) {
-          console.log("Reset password form submitted with", state.newPassword);
-          // Add your form submission logic here
+    <!-- Thông báo lỗi khi cập nhật thất bại -->
+    <div v-if="apiError" class="text-danger mt-3">{{ apiError }}</div>
+
+    <!-- Thông báo khi cập nhật thành công -->
+    <div v-if="success" class="text-success mt-3">
+      <p>{{ successMessage }}</p>
+      <button @click="goToLogin" class="btn btn-primary">Go to Login</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+
+export default {
+  props: {
+    token: {
+      type: String,
+      required: true
+    }
+  },
+  setup(props) {
+    const router = useRouter(); // Sử dụng router để chuyển hướng
+    const password = ref('');
+    const passwordConfirmation = ref('');
+    const apiError = ref('');
+    const successMessage = ref('');
+    const success = ref(false); // Biến để kiểm soát hiển thị thông báo thành công
+
+    const handleSubmit = async () => {
+      try {
+        const response = await axios.post('http://localhost:8000/api/reset-password', {
+          token: props.token,
+          password: password.value,
+          password_confirmation: passwordConfirmation.value
+        });
+
+        if (response.data.message) {
+          successMessage.value = response.data.message;
+          success.value = true; // Cập nhật trạng thái để hiển thị thông báo thành công
         }
-      };
-  
-      const passwordErrors = computed(() => {
-        const errors = [];
-        if (!v$.value.newPassword.required) errors.push('Password is required.');
-        if (state.newPassword.length > 255) errors.push('Password must be less than 255 characters.');
-        return errors;
-      });
-  
-      const confirmPasswordErrors = computed(() => {
-        const errors = [];
-        if (!v$.value.confirmPassword.required) errors.push('Confirm password is required.');
-        if (state.confirmPassword.length > 255) errors.push('Password must be less than 255 characters.');
-        if (!v$.value.confirmPassword.sameAsNewPassword) errors.push('Passwords must match.');
-        return errors;
-      });
-  
-      return {
-        state,
-        v$,
-        handleSubmit,
-        passwordErrors,
-        confirmPasswordErrors,
-      };
-    },
-  };
-  </script>
+      } catch (error) {
+        if (error.response && error.response.data.message) {
+          apiError.value = error.response.data.message;
+        } else {
+          apiError.value = 'An error occurred. Please try again.';
+        }
+      }
+    };
+
+    const goToLogin = () => {
+      router.push('/'); 
+    };
+
+    return {
+      password,
+      passwordConfirmation,
+      apiError,
+      successMessage,
+      success,
+      handleSubmit,
+      goToLogin
+    };
+  }
+};
+</script>
+
+
   
   <style scoped>
   * {
