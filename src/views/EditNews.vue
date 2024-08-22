@@ -1,198 +1,186 @@
 <template>
-    <div class="container">
-      <h4 class="fw-bold mb-5">Edit News</h4>
-      <div class="mb-3 justify-content-between p-3 content">
-        <form @submit.prevent="handleSubmit" class="mt-3">
-          <div class="mb-3">
-            <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
-            <select id="category" v-model="selectedCategory" class="form-select" required>
-              <option value="" disabled>Choose item</option>
-              <option v-for="category in categories" :key="category.id" :value="category.id">
-                {{ category.name }}
-              </option>
-            </select>
+  <div class="container">
+    <h4 class="fw-bold mb-5">Edit News</h4>
+    <div class="mb-3 justify-content-between p-3 content">
+      <form @submit.prevent="handleSubmit" class="mt-3">
+        <!-- Category Selection -->
+        <div class="mb-3">
+          <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+          <select id="category" v-model="selectedCategory" class="form-select" required>
+            <option value="" disabled>Choose item</option>
+            <option v-for="category in categories" :key="category.id" :value="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+        <!-- Title Input -->
+        <div class="mb-3">
+          <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+          <input type="text" id="title" v-model="title" class="form-control" required />
+        </div>
+        <!-- Slug Input -->
+        <div class="mb-3">
+          <label for="slug" class="form-label">Slug <span class="text-danger">*</span></label>
+          <input type="text" id="slug" v-model="slug" class="form-control" required />
+        </div>
+        <!-- Image URL Input -->
+        <div class="mb-3">
+          <label for="image" class="form-label">Image URL</label>
+          <input type="text" id="image" v-model="imageUrl" class="form-control" placeholder="Enter image URL" />
+          <div v-if="imageUrl" class="mb-3">
+            <img :src="imageUrl" alt="Image Preview" class="img-preview" />
           </div>
-          <div class="mb-3">
-            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-            <input type="text" id="title" v-model="title" class="form-control" required />
+        </div>
+        <!-- Content Editor -->
+        <div class="mb-3">
+          <label for="content" class="form-label">Content</label>
+          <CKEditor :content="content" @updateContent="handleContent" />
+        </div>
+        <!-- Status Selection -->
+        <div class="mb-3">
+          <label class="form-label">Status:</label>
+          <div class="form-check form-check-inline">
+            <input 
+              type="radio" 
+              id="published" 
+              value="1" 
+              v-model="status" 
+              class="form-check-input" 
+            />
+            <label for="published" class="form-check-label">Published</label>
           </div>
-          <div class="mb-3">
-            <label for="slug" class="form-label">Slug <span class="text-danger">*</span></label>
-            <input type="text" id="slug" v-model="slug" class="form-control" required />
+          <div class="form-check form-check-inline">
+            <input 
+              type="radio" 
+              id="unpublished" 
+              value="2" 
+              v-model="status" 
+              class="form-check-input" 
+            />
+            <label for="unpublished" class="form-check-label">Unpublished</label>
           </div>
-          <div class="mb-3">
-            <label for="image" class="form-label">Image</label>
-            <div class="d-flex justify-content-center align-items-center p-3 mt-2 mb-3 custom-file-input">
-              <input
-                v-show="false"
-                ref="fileInput"
-                type="file"
-                id="image"
-                @change="handleFileChange"
-              />
-              <button type="button" class="custom-file-btn" @click="triggerFileInput">
-                Choose a file
-              </button>
-            </div>
-            <div v-if="imageUrl" class="mb-3">
-              <img :src="imageUrl" alt="Image Preview" class="img-preview" />
-            </div>
+          <div class="form-check form-check-inline">
+            <input 
+              type="radio" 
+              id="draft" 
+              value="0" 
+              v-model="status" 
+              class="form-check-input" 
+            />
+            <label for="draft" class="form-check-label">Draft</label>
           </div>
-          <div class="mb-3">
-            <label for="content" class="form-label">Content</label>
-            <CKEditor :content="content" @updateContent="handleContent" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Status:</label>
-            <div class="form-check form-check-inline">
-              <input 
-                type="radio" 
-                id="published" 
-                value="true" 
-                v-model="published" 
-                class="form-check-input" 
-              />
-              <label for="published" class="form-check-label">Published</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input 
-                type="radio" 
-                id="unpublished" 
-                value="false" 
-                v-model="published" 
-                class="form-check-input" 
-              />
-              <label for="unpublished" class="form-check-label">Unpublished</label>
-            </div>
-          </div>
-          <div class="d-flex justify-content-center gap-2">
-            <button type="button" class="btn btn-secondary" @click="handleCancel">Cancel</button>
-            <button type="button" class="btn btn-primary" @click="handleDraft">Draft</button>
-            <button type="submit" class="btn btn-success">Save</button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <!-- Buttons -->
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-secondary" @click="handleCancel">Cancel</button>
+          <button type="submit" class="btn btn-success">Save</button>
+        </div>
+      </form>
     </div>
-  </template>
-  
-  <script setup>
-  import router from "@/router";
-  import { ref, inject, watch } from "vue";
-  import CKEditor from "@/components/CKEditorComponent.vue";
-  
-  // Thay đổi tiêu đề ngày nếu cần, hoặc sử dụng ngày hiện tại như trong CreateNews.vue
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0"); 
-  const day = String(today.getDate()).padStart(2, "0");
-  
-  const currentDate = `${day}-${month}-${year}`;
-  
-  const showDialog = inject("showDialog");
-  const confirm = inject("confirm");
-  const resetConfirm = inject("resetConfirm");
-  
-  const categories = ref([
-    { id: 1, name: 'Adventure Travel' },
-    { id: 2, name: 'Beach Explore' },
-    { id: 3, name: 'World' },
-    { id: 4, name: 'Family Holidays' },
-    { id: 5, name: 'Art and culture' }
-  ]);
-  const selectedCategory = ref("");
-  const title = ref("");
-  const slug = ref("");
-  const fileInput = ref(null);
-  const imageUrl = ref(null);
-  const content = ref("");
-  const published = ref(true); 
-  const draft = ref(false);
-  
-  const triggerFileInput = () => {
-    const fileInput = document.querySelector('#image');
-    if (fileInput) fileInput.click();
-  };
-  
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && (file.type.startsWith('image/jpeg') || file.type.startsWith('image/png') || file.type.startsWith('image/gif'))) {
-      imageUrl.value = URL.createObjectURL(file);
-    } else {
-      alert('Please upload a valid image file (JPEG, PNG, GIF).');
-      event.target.value = null;
-      imageUrl.value = null;
-    }
-  };
-  
-  const handleContent = (editorData) => {
-    content.value = editorData;
-  };
-  
-  const handleCancel = () => {
-    router.push("/admin/list-news");
-  };
-  
-  const handleDraft = () => {
-    draft.value = true;
-    handleSubmit();
-  };
-  
-  const handleSubmit = () => {
-    showDialog("Are you sure to edit this item?", "Edit");
-  
-    watch(confirm, () => {
-      if (confirm.value) {
-        const tempItem = {
-          checked: false,
-          category: selectedCategory.value,
-          url: imageUrl.value,
-          title: title.value,
-          slug: slug.value,
-          date: currentDate,
-          published: published.value, 
-          draft: draft.value,
-          isFilter: false,
-        };
-  
-        console.log(tempItem);
-        resetConfirm();
-        router.push("/admin/list-news");
-      }
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted,  } from 'vue';
+import axios from 'axios';
+import { useRouter, useRoute } from 'vue-router';
+import CKEditor from '@/components/CKEditorComponent.vue';
+
+// Reactive data properties
+const categories = ref([
+  { id: 1, name: 'Adventure Travel' },
+  { id: 2, name: 'Beach Explore' },
+  { id: 3, name: 'World' },
+  { id: 4, name: 'Family Holidays' },
+  { id: 5, name: 'Art and culture' }
+]);
+const selectedCategory = ref("");
+const title = ref("");
+const slug = ref("");
+const imageUrl = ref("");
+const content = ref("");
+const status = ref("1"); // Default to published
+const apiError = ref("");
+const successMessage = ref("");
+const success = ref(false);
+
+// Get route parameters and router instance
+const route = useRoute();
+const router = useRouter();
+
+// Fetch the news item by ID
+const fetchNewsItem = async (id) => {
+  try {
+    const response = await axios.get(`http://localhost:8000/api/posts/${id}`);
+    const item = response.data;
+    console.log(item)
+
+    // Populate form with fetched data
+    selectedCategory.value = item.category_id;
+    title.value = item.title;
+    slug.value = item.slug;
+    imageUrl.value = item.image;
+    content.value = item.content;
+    status.value = item.status.toString();
+  } catch (error) {
+    apiError.value = 'Có lỗi xảy ra khi tải dữ liệu bài viết.';
+    console.error('Error fetching news item:', error);
+  }
+};
+
+// Handle form submission
+const handleSubmit = async () => {
+  const id = route.params.id; // Get the ID from route params
+  if (!id) {
+    apiError.value = 'Invalid ID';
+    return;
+  }
+
+  try {
+    // Determine which endpoint to call based on the status
+    const endpoint = status.value === "0" 
+      ? `http://localhost:8000/api/posts/draft/${id}` 
+      : `http://localhost:8000/api/posts/${id}`;
+
+    await axios.put(endpoint, {
+      category_id: selectedCategory.value,
+      image: imageUrl.value,
+      title: title.value,
+      slug: slug.value,
+      content: content.value,
+      status: status.value
     });
-  };
-  </script>
-  
-  <style scoped>
-  .content {
-    background-color: #fff;
+
+    successMessage.value = 'Bài viết đã được cập nhật thành công!';
+    success.value = true;
+    alert('Bài viết đã được cập nhật thành công!');
+    router.push('/admin/list-news');
+  } catch (error) {
+    apiError.value = 'Có lỗi xảy ra khi cập nhật bài viết.';
+    alert('Có lỗi xảy ra khi cập nhật bài viết.');
+    console.error('Error updating news item:', error);
   }
-  
-  .text-danger {
-    color: red;
+};
+
+// Handle cancel button click
+const handleCancel = () => {
+  router.push('/admin/list-news');
+};
+
+// Initialize component
+onMounted(() => {
+  const id = route.params.id;
+  if (id) {
+    fetchNewsItem(id);
+  } else {
+    apiError.value = 'Invalid ID';
   }
-  
-  .form-check-inline {
-    display: inline-block;
-    margin-right: 10px;
-  }
-  
-  .d-flex {
-    display: flex;
-  }
-  
-  .justify-content-center {
-    justify-content: center;
-  }
-  
-  .gap-2 {
-    gap: 20px;
-  }
-  
-  .img-preview {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin-top: 10px;
-  }
-  </style>
-  
+});
+</script>
+
+<style scoped>
+.img-preview {
+  max-width: 100%;
+  height: auto;
+}
+</style>

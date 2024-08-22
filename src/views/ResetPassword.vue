@@ -25,63 +25,58 @@
   </div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup>
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
-export default {
-  props: {
-    token: {
-      type: String,
-      required: true
+// Hook để lấy route params
+const route = useRoute();
+const router = useRouter();
+
+// Define reactive variables
+const password = ref('');
+const passwordConfirmation = ref('');
+const apiError = ref('');
+const successMessage = ref('');
+const success = ref(false);
+
+// Get token from query params
+const token = ref(route.query.token || '');
+
+// Handle form submission
+const handleSubmit = async () => {
+  try {
+    const response = await axios.post('http://localhost:8000/api/reset-password', {
+      token: token.value,
+      password: password.value,
+      password_confirmation: passwordConfirmation.value
+    });
+
+    if (response.data.message) {
+      successMessage.value = response.data.message;
+      success.value = true; // Update state to show success message
     }
-  },
-  setup(props) {
-    const router = useRouter(); // Sử dụng router để chuyển hướng
-    const password = ref('');
-    const passwordConfirmation = ref('');
-    const apiError = ref('');
-    const successMessage = ref('');
-    const success = ref(false); // Biến để kiểm soát hiển thị thông báo thành công
-
-    const handleSubmit = async () => {
-      try {
-        const response = await axios.post('http://localhost:8000/api/reset-password', {
-          token: props.token,
-          password: password.value,
-          password_confirmation: passwordConfirmation.value
-        });
-
-        if (response.data.message) {
-          successMessage.value = response.data.message;
-          success.value = true; // Cập nhật trạng thái để hiển thị thông báo thành công
-        }
-      } catch (error) {
-        if (error.response && error.response.data.message) {
-          apiError.value = error.response.data.message;
-        } else {
-          apiError.value = 'An error occurred. Please try again.';
-        }
-      }
-    };
-
-    const goToLogin = () => {
-      router.push('/'); 
-    };
-
-    return {
-      password,
-      passwordConfirmation,
-      apiError,
-      successMessage,
-      success,
-      handleSubmit,
-      goToLogin
-    };
+  } catch (error) {
+    if (error.response && error.response.data.message) {
+      apiError.value = error.response.data.message;
+    } else {
+      apiError.value = 'An error occurred. Please try again.';
+    }
   }
 };
+
+// Redirect to login page
+const goToLogin = () => {
+  router.push('/'); 
+};
+
+// Optional: Fetch token if needed, or perform additional initialization
+onMounted(() => {
+  // Any initialization or additional logic can go here
+});
 </script>
+
 
 
   

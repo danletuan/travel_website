@@ -51,10 +51,11 @@ const routes = [
                 component: CreateNews,
             },
             {
-                path: "/edit-news/:id",
+                path: 'edit-news/:id',
+                name: 'EditNews',
                 component: EditNews,
+                props: route => ({ id: route.query.id }),
             },
-
         ],
         meta: {
             requiresAuth: true,

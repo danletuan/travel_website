@@ -21,19 +21,8 @@
           <input type="text" id="slug" v-model="slug" class="form-control" required />
         </div>
         <div class="mb-3">
-          <label for="image" class="form-label">Image</label>
-          <div class="d-flex justify-content-center align-items-center p-3 mt-2 mb-3 custom-file-input">
-            <input
-              v-show="false"
-              ref="fileInput"
-              type="file"
-              id="image"
-              @change="handleFileChange"
-            />
-            <button type="button" class="custom-file-btn" @click="triggerFileInput">
-              Choose a file
-            </button>
-          </div>
+          <label for="image" class="form-label">Image URL</label>
+          <input type="text" id="image" v-model="imageUrl" class="form-control" placeholder="Enter image URL" />
           <div v-if="imageUrl" class="mb-3">
             <img :src="imageUrl" alt="Image Preview" class="img-preview" />
           </div>
@@ -48,8 +37,8 @@
             <input 
               type="radio" 
               id="published" 
-              value="true" 
-              v-model="published" 
+              value="1" 
+              v-model="status" 
               class="form-check-input" 
             />
             <label for="published" class="form-check-label">Published</label>
@@ -58,16 +47,25 @@
             <input 
               type="radio" 
               id="unpublished" 
-              value="false" 
-              v-model="published" 
+              value="2" 
+              v-model="status" 
               class="form-check-input" 
             />
             <label for="unpublished" class="form-check-label">Unpublished</label>
           </div>
+          <div class="form-check form-check-inline">
+            <input 
+              type="radio" 
+              id="draft" 
+              value="0" 
+              v-model="status" 
+              class="form-check-input" 
+            />
+            <label for="draft" class="form-check-label">Draft</label>
+          </div>
         </div>
         <div class="d-flex justify-content-center gap-2">
           <button type="button" class="btn btn-secondary" @click="handleCancel">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="handleDraft">Draft</button>
           <button type="submit" class="btn btn-success">Save</button>
         </div>
       </form>
@@ -79,17 +77,14 @@
 import router from "@/router";
 import { ref, inject, watch } from "vue";
 import CKEditor from "@/components/CKEditorComponent.vue";
+import axios from 'axios';
 
-const today = new Date();
-const year = today.getFullYear();
-const month = String(today.getMonth() + 1).padStart(2, "0"); 
-const day = String(today.getDate()).padStart(2, "0");
 
-const currentDate = `${day}-${month}-${year}`;
 
 const showDialog = inject("showDialog");
 const confirm = inject("confirm");
 const resetConfirm = inject("resetConfirm");
+
 
 const categories = ref([
   { id: 1, name: 'Adventure Travel' },
@@ -101,27 +96,9 @@ const categories = ref([
 const selectedCategory = ref("");
 const title = ref("");
 const slug = ref("");
-const fileInput = ref(null);
-const imageUrl = ref(null);
+const imageUrl = ref("");
 const content = ref("");
-const published = ref(true); 
-const draft = ref(false);
-
-const triggerFileInput = () => {
-  const fileInput = document.querySelector('#image');
-  if (fileInput) fileInput.click();
-};
-
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file && (file.type.startsWith('image/jpeg') || file.type.startsWith('image/png') || file.type.startsWith('image/gif'))) {
-    imageUrl.value = URL.createObjectURL(file);
-  } else {
-    alert('Please upload a valid image file (JPEG, PNG, GIF).');
-    event.target.value = null;
-    imageUrl.value = null;
-  }
-};
+const status = ref("1"); // Default to published
 
 const handleContent = (editorData) => {
   content.value = editorData;
@@ -131,66 +108,37 @@ const handleCancel = () => {
   router.push("/admin/list-news");
 };
 
-const handleDraft = () => {
-  draft.value = true;
-  handleSubmit();
-};
-
-const handleSubmit = () => {
+const handleSubmit = async () => {
   showDialog("Are you sure to add this item?", "Add");
 
-  watch(confirm, () => {
+  watch(confirm, async () => {
     if (confirm.value) {
-      const tempItem = {
-        checked: false,
-        category: selectedCategory.value,
-        url: imageUrl.value,
+      const newItem = {
+        category_id: selectedCategory.value,
+        image: imageUrl.value,
         title: title.value,
         slug: slug.value,
-        date: currentDate,
-        published: published.value, 
-        draft: draft.value,
-        isFilter: false,
+        content: content.value,
+        status: status.value, // Giữ lại trường status
       };
 
-      console.log(tempItem);
-      resetConfirm();
-      router.push("/admin/list-news");
+      try {
+        if (status.value === "0") {
+          // Gọi API tạo nháp
+          await axios.post('http://localhost:8000/api/posts/draft', newItem);
+        } else {
+          // Gọi API tạo bài viết bình thường
+          await axios.post('http://localhost:8000/api/posts', newItem);
+        }
+
+        resetConfirm();
+        router.push("/admin/list-news");
+        alert('Bài viết đã được thêm thành công!');
+      } catch (error) {
+        console.error('Error adding news item:', error);
+        alert('Có lỗi xảy ra khi thêm bài viết.');
+      }
     }
   });
 };
 </script>
-
-<style scoped>
-.content {
-  background-color: #fff;
-}
-
-.text-danger {
-  color: red;
-}
-
-.form-check-inline {
-  display: inline-block;
-  margin-right: 10px;
-}
-
-.d-flex {
-  display: flex;
-}
-
-.justify-content-center {
-  justify-content: center;
-}
-
-.gap-2 {
-  gap: 20px;
-}
-
-.img-preview {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin-top: 10px;
-}
-</style>
