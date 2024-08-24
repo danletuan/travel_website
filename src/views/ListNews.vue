@@ -65,25 +65,31 @@
         <div class="news-action"></div>
       </li>
       <li v-for="(item, index) in displayedNews" :key="item.id" class="d-flex justify-content-between news-item">
-        <input class="news-checkbox" type="checkbox" @click="selectItem(index)" v-model="selectedItems[index]" />
-        <img :src="item.url" alt="news image" class="news-image" />
-        <div class="news-title">{{ item.title }}</div>
-        <div class="news-date">{{ item.date }}</div>
-        <div class="news-status">
-          <div v-if="item.published != null" :class="{'published': item.published, 'inactive': !item.published}" class="status-text text-center mb-1">
-            {{ item.published ? "Published" : "Inactive" }}
-          </div>
-          <div v-if="item.draft" class="status-text text-center draft">Draft</div>
+      <input class="news-checkbox" type="checkbox" @click="selectItem(index)" v-model="selectedItems[index]" />
+      <img :src="getImageUrl(item.image)" alt="news image" class="news-image" />
+      <div class="news-title">{{ item.title }}</div>
+      <div class="news-date">{{ item.created_at }}</div>
+      <div class="news-status">
+        <div
+          :class="{
+            'status-text text-center mb-1': true,
+            'published': item.status === 1,
+            'inactive': item.status === 2,
+            'draft': item.status === 0
+          }"
+        >
+          {{ item.status === 1 ? "Published" : item.status === 2 ? "Inactive" : "Draft" }}
         </div>
-        <div class="d-flex justify-content-center news-action">
-          <button class="edit-button me-3" @click="editItem(item)">
-            <img src="../assets/admin/pen.png" alt="" />
-          </button>
-          <button class="delete-button" @click="deleteItem(item)">
-            <img src="../assets/admin/trash.png" alt="" />
-          </button>
-        </div>
-      </li>
+      </div>
+      <div class="d-flex justify-content-center news-action">
+        <button class="edit-button me-3" @click="editItem(item)">
+          <img src="../assets/admin/pen.png" alt="Edit" />
+        </button>
+        <button class="delete-button" @click="deleteItem(item)">
+          <img src="../assets/admin/trash.png" alt="Delete" />
+        </button>
+      </div>
+    </li>
     </ul>
     <div class="d-flex justify-content-between align-items-center news-pages">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
@@ -94,182 +100,140 @@
 </template>
   
 
-  <script setup>
-  import { ref, computed, inject, watch } from 'vue';
-  import router from "@/router";
-  
-  // Define reactive state
-  const listNews = ref([
-    {
-      id: 1,
-      url: require('@/assets/admin/image.png'),
-      title: 'Where can I go? 5 amazing countries that are open right now',
-      date: '2024-06-30',
-      published: true,
-      draft: true,
-    },
-    {
-      id: 2,
-      url: require('@/assets/admin/image.png'),
-      title: 'Where can I go? 5 amazing countries that are open right now',
-      date: '2024-06-30',
-      published: true,
-      draft: false,
-    },
-    {
-      id: 3,
-      url: require('@/assets/admin/image.png'),
-      title: 'Where can I go? 5 amazing countries that are open right now',
-      date: '2024-06-30',
-      published: false,
-      draft: true,
-    },
-    {
-      id: 4,
-      url: require('@/assets/admin/image.png'),
-      title: 'Where can I go? 5 amazing countries that are open right now',
-      date: '2024-06-30',
-      published: false,
-      draft: false,
-    },
-    {
-      id: 5,
-      url: require('@/assets/admin/image.png'),
-      title: 'Where can I go? 5 amazing countries that are open right now',
-      date: '2024-06-30',
-      published: null,
-      draft: true,
-    },
-    {
-      id: 6,
-      url: require('@/assets/admin/image.png'),
-      title: 'Where can I go? 5 amazing countries that are open right now',
-      date: '2024-06-30',
-      published: null,
-      draft: true,
-    },
-    {
-      id: 7,
-      url: require('@/assets/admin/image.png'),
-      title: 'Where can I go? 5 amazing countries that are open right now',
-      date: '2024-06-30',
-      published: null,
-      draft: true,
-    },
-    {
-      id: 8,
-      url: require('@/assets/admin/image.png'),
-      title: 'Test tim kiem',
-      date: '2024-06-30',
-      published: null,
-      draft: true,
-    },
-  ]);
-  
-  const selectAll = ref(false);
-  const selectedItems = ref(Array(listNews.value.length).fill(false));
-  const pageSize = 5;
-  const currentPage = ref(1);
-  const isFilterVisible = ref(false);
-  const searchQuery = ref('');
-  const filterStatus = ref({
-    published: true,
-    unpublished: true,
-    draft: true,
-  });
-  const filterDate = ref('');
-  const filterApplied = ref(false);
-  
-  // Computed properties
-  const filteredNews = computed(() => {
-    if (!filterApplied.value) {
-      return listNews.value;
-    }
-    return listNews.value.filter((item) => {
-      const statusMatch =
-        (filterStatus.value.published && item.published) ||
-        (filterStatus.value.unpublished && !item.published) ||
-        (filterStatus.value.draft && item.draft);
-      const dateMatch = filterDate.value ? item.date === filterDate.value : true;
-      const searchMatch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase());
-      return statusMatch && dateMatch && searchMatch;
-    });
-  });
-  
-  const totalPages = computed(() => {
-    return Math.ceil(filteredNews.value.length / pageSize);
-  });
-  
-  const displayedNews = computed(() => {
-    const start = (currentPage.value - 1) * pageSize;
-    return filteredNews.value.slice(start, start + pageSize);
-  });
-  
-  const selectedCount = computed(() => {
-    return selectedItems.value.filter(Boolean).length;
-  });
-  
-  // Methods
-  const selectAllItems = (event) => {
-    const isChecked = event.target.checked;
-    selectedItems.value = Array(displayedNews.value.length).fill(isChecked);
-  };
-  
-  const selectItem = (index) => {
-    selectedItems.value[index] = !selectedItems.value[index];
-    checkSelectAll();
-  };
-  
-  const checkSelectAll = () => {
-    selectAll.value = selectedItems.value.every((item) => item) || selectedItems.value.length > 0;
-  };
-  
-  const changeStatusSelected = (status) => {
-    const actionText = status ? 'Publish' : 'Unpublish';
-    showDialog(`Are you sure to ${actionText} all selected items?`, actionText);
+<script setup>
+import { ref, computed, inject, watch, onMounted } from 'vue';
+import axios from 'axios';
+import router from "@/router";
 
-    watch(confirm, () => {
-      if (confirm.value) {
-        listNews.value = listNews.value.map((item, index) => {
-          if (selectedItems.value[index]) {
-            return { ...item, published: status };
-          }
-          return item;
-        });
-        selectedItems.value = Array(listNews.value.length).fill(false);
-        selectAll.value = false;
-  }
-  resetConfirm();
+// Define reactive state
+const listNews = ref([]);
+const selectAll = ref(false);
+const selectedItems = ref([]);
+const pageSize = 5;
+const currentPage = ref(1);
+const isFilterVisible = ref(false);
+const searchQuery = ref('');
+const filterStatus = ref({
+  published: true,
+  unpublished: true,
+  draft: true,
 });
+const filterDate = ref('');
+const filterApplied = ref(false);
+
+// Fetch news data from the API
+const fetchNews = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/posts');
+    listNews.value = response.data; // Assuming the data is in `data.data`
+    selectedItems.value = Array(listNews.value.length).fill(false);
+  } catch (error) {
+    console.error("Error fetching news:", error);
+  }
 };
 
-  
-  const prevPage = () => {
-    if (currentPage.value > 1) {
-      currentPage.value--;
+onMounted(fetchNews);
+
+// Computed properties
+const filteredNews = computed(() => {
+  if (!Array.isArray(listNews.value)) {
+    return [];
+  }
+
+  if (!filterApplied.value) {
+    return listNews.value;
+  }
+
+  return listNews.value.filter((item) => {
+    const statusMatch =
+      (filterStatus.value.draft && item.status === 0) ||
+      (filterStatus.value.published && item.status === 1) ||
+      (filterStatus.value.unpublished && item.status === 2);
+    const dateMatch = filterDate.value ? item.date === filterDate.value : true;
+    const searchMatch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase());
+    return statusMatch && dateMatch && searchMatch;
+  });
+});
+
+
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredNews.value.length / pageSize);
+});
+
+const displayedNews = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return filteredNews.value.slice(start, start + pageSize);
+});
+
+const selectedCount = computed(() => {
+  return selectedItems.value.filter(Boolean).length;
+});
+
+// Methods
+const selectAllItems = (event) => {
+  const isChecked = event.target.checked;
+  selectedItems.value = Array(displayedNews.value.length).fill(isChecked);
+};
+
+const selectItem = (index) => {
+  selectedItems.value[index] = !selectedItems.value[index];
+  checkSelectAll();
+};
+
+const checkSelectAll = () => {
+  selectAll.value = selectedItems.value.every((item) => item) || selectedItems.value.length > 0;
+};
+
+const changeStatusSelected = (newStatus) => {
+  const actionText =
+    newStatus === 1 ? 'Publish' :
+    newStatus === 2 ? 'Unpublish' : 'Set as Draft';
+
+  showDialog(`Are you sure to ${actionText} all selected items?`, actionText);
+
+  watch(confirm, async () => {
+    if (confirm.value) {
+      listNews.value = listNews.value.map((item, index) => {
+        if (selectedItems.value[index]) {
+          return { ...item, status: newStatus };
+        }
+        return item;
+      });
+      selectedItems.value = Array(listNews.value.length).fill(false);
+      selectAll.value = false;
     }
-  };
-  
-  const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-      currentPage.value++;
-    }
-  };
-  
-  const toggleFilter = () => {
-    isFilterVisible.value = !isFilterVisible.value;
-  };
-  
-  const applyFilter = () => {
-    filterApplied.value = true;
-    currentPage.value = 1;
-    isFilterVisible.value = false;
-  };
-  
-  const handleSearch = () => {
-    filterApplied.value = true;
-    currentPage.value = 1;
-  };
+    resetConfirm();
+  });
+};
+
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const toggleFilter = () => {
+  isFilterVisible.value = !isFilterVisible.value;
+};
+
+const applyFilter = () => {
+  filterApplied.value = true;
+  currentPage.value = 1;
+  isFilterVisible.value = false;
+};
+
+const handleSearch = () => {
+  filterApplied.value = true;
+  currentPage.value = 1;
+};
 
 // Delete an item
 const itemToDelete = ref(null);
@@ -277,44 +241,62 @@ const showDialog = inject("showDialog");
 const confirm = inject("confirm");
 const resetConfirm = inject("resetConfirm");
 
-// Refactor the deleteItem function
+// Delete a single news item using API
 const deleteItem = (item) => {
-itemToDelete.value = item;
-showDialog("Are you sure to delete this information?", "Delete");
+  itemToDelete.value = item;
+  showDialog("Are you sure to delete this information?", "Delete");
 
-watch(confirm, () => {
-  if (confirm.value && itemToDelete.value) {
-    listNews.value = listNews.value.filter(
-      (news) => news !== itemToDelete.value
-    );
-    itemToDelete.value = null;
-  }
-
-  resetConfirm();
-});
-
+  watch(confirm, async () => {
+    if (confirm.value && itemToDelete.value) {
+      try {
+        await axios.delete(`http://localhost:8000/api/posts/${itemToDelete.value.id}`);
+        await fetchNews(); // Refresh the list after deletion
+      } catch (error) {
+        console.error("Error deleting news:", error);
+      }
+      itemToDelete.value = null;
+    }
+    resetConfirm();
+  });
 };
+
 const editItem = (item) => {
-router.push(`/admin/edit-news/${item.id}`);
+  router.push(`/admin/edit-news/${item.id}`);
 };
 
-
+// Delete selected items using API
 const deleteSelected = () => {
-showDialog("Are you sure to delete all items checked?", "Delete");
+  showDialog("Are you sure to delete all items checked?", "Delete");
 
-watch(confirm, () => {
-  if (confirm.value) {
-    listNews.value = listNews.value.filter((_, index) => !selectedItems.value[index]);
-    selectedItems.value = Array(listNews.value.length).fill(false);
-    selectAll.value = false;
-  }
-  resetConfirm();
-});
+  watch(confirm, async () => {
+    if (confirm.value) {
+      try {
+        const deletePromises = selectedItems.value
+          .map((isSelected, index) => isSelected && axios.delete(`http://localhost:8000/api/posts/${displayedNews.value[index].id}`))
+          .filter(Boolean);
 
+        await Promise.all(deletePromises);
+        await fetchNews(); // Refresh the list after deletion
+        selectedItems.value = Array(listNews.value.length).fill(false);
+        selectAll.value = false;
+      } catch (error) {
+        console.error("Error deleting selected news:", error);
+      }
+    }
+    resetConfirm();
+  });
 };
 
+const getImageUrl = (imagePath) => {
+    // Kiểm tra xem đường dẫn có bắt đầu bằng '/' hay chưa, nếu chưa thì thêm vào
+    if (!imagePath.startsWith('/')) {
+      imagePath = '/' + imagePath;
+    }
+    return `http://localhost:8080${imagePath}`;
+};
 
 </script>
+
 
 <style scoped>
 * {

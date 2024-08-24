@@ -8,7 +8,10 @@ import CreateNews from '../views/CreateNews.vue';
 import EditNews from '@/views/EditNews.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import HomeLayout from '@/layouts/HomeLayout.vue';
 import RegisterPage from '@/views/RegisterPage.vue';
+import NewsPage from '@/views/NewsPage.vue';
+import NewsDetail from '@/views/NewsDetail.vue';
 
 const routes = [
     {
@@ -60,6 +63,22 @@ const routes = [
         meta: {
             requiresAuth: true,
         },
+    },
+    {
+        path: '/',
+        component: HomeLayout,
+        children: [
+            {
+                path: 'news-page',
+                component: NewsPage,
+            },
+            {
+                path: 'news-detail/:slug',
+                name: 'NewsDetail',
+                component: NewsDetail,
+                props: route => ({ slug: route.query.slug }),
+            },
+        ],
     },
 ];
 

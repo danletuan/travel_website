@@ -28,7 +28,7 @@
           <label for="image" class="form-label">Image URL</label>
           <input type="text" id="image" v-model="imageUrl" class="form-control" placeholder="Enter image URL" />
           <div v-if="imageUrl" class="mb-3">
-            <img :src="imageUrl" alt="Image Preview" class="img-preview" />
+            <img :src="getImageUrl(imageUrl)" alt="Image Preview" class="img-preview" />
           </div>
         </div>
         <!-- Content Editor -->
@@ -176,6 +176,15 @@ onMounted(() => {
     apiError.value = 'Invalid ID';
   }
 });
+
+const getImageUrl = (imagePath) => {
+    // Kiểm tra xem đường dẫn có bắt đầu bằng '/' hay chưa, nếu chưa thì thêm vào
+    if (!imagePath.startsWith('/')) {
+      imagePath = '/' + imagePath;
+    }
+    return `http://localhost:8080${imagePath}`;
+};
+
 </script>
 
 <style scoped>
